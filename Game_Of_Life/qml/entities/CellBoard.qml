@@ -2,22 +2,21 @@ import VPlay 2.0
 import QtQuick 2.0
 
 EntityBase {
-
     entityId: CellBoard
     entityType: "CellBoard"
 
+    // The board will always be square, so just one value needed
+    property int boardSize: 10
+
+    // The "constructor" - executed after object got created.
     Component.onCompleted: {
-        for (var x = 0; x < 10; x++)
+        // Creating "boardSize * boardSize" number of cells with default values
+        for (var x = 0; x < boardSize; x++)
         {
-            for (var y = 0; y < 10; y++)
+            for (var y = 0; y < boardSize; y++)
             {
                 cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), {"isAlive": false, "positionX": x, "positionY": y});
-                //cellBoardEntityManager.createEntityFromUrl(Qt.resolvedUrl("Cell.qml"));
             }
         }
-
-        var bac = cellBoardEntityManager.getEntityArrayByType("Cell");
-        var test = bac.length;
-        var test2 = "xx";
     }
 }
