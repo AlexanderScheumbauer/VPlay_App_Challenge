@@ -17,7 +17,7 @@ Scene {
     EntityManager {
          id: entityManager
          entityContainer: golScene
-       }
+    }
 
     Rectangle {
         id: sceneBackground
@@ -25,8 +25,9 @@ Scene {
         color: "green"
     }
 
-    Cell {
-        height: parent.height + 50
+    CellBoard {
+        id: cellBoard
+        height: 10
         anchors.right: parent.left
     }
 }
