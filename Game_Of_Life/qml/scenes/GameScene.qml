@@ -3,7 +3,10 @@ import QtQuick 2.0
 
 import "../entities"
 
+// The Game Scene
 SceneBase {
+    id: gameScene
+
     property bool gameRunning: false
 
     sceneAlignmentY: top
@@ -14,13 +17,13 @@ SceneBase {
 
     EntityManager {
          id: cellBoardEntityManager
-         entityContainer: golScene
+         entityContainer: gameScene
     }
 
+    // background
     Rectangle {
-        id: sceneBackground
-        anchors.fill: parent
-        color: "green"
+        anchors.fill: parent.gameWindowAnchorItem
+        color: "#dd94da"
     }
 
     CellBoard {

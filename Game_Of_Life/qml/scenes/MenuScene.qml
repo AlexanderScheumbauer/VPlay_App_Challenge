@@ -1,62 +1,45 @@
 import VPlay 2.0
 import QtQuick 2.0
 
-// Menu Scene
+import "../entities"
 
-Scene {
+// The Menu Scene
+SceneBase {
     id: menuScene
 
+    //property int setupLivingCells: 0
+
     // signal indicating that the gameScene should be displayed
-    signal gameScenePressed
+    signal startSimulationPressed
+    // signal indicating that the creditsScene should be displayed
+    signal creditsPressed
 
-    property int setupLivingCells: 0
-
-    // background image
-    Image {
-         anchors.fill: menuScene.gameWindowAnchorItem
-         source: "../../assets/background.png"
+    // background
+    Rectangle {
+        anchors.fill: parent.gameWindowAnchorItem
+        color: "#47688e"
     }
 
+    // the "logo"
+    Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: 30
+        font.pixelSize: 30
+        color: "#e9e9e9"
+        text: "MultiSceneMultiLevel"
+    }
+
+    // menu
     Column {
         anchors.centerIn: parent
-        spacing: 20
-
-        Rectangle {
-            width: 150
-            height: 50
-            color: "orange"
-            Text {
-                id: increaseLivingCellsButton
-                text: "+"
-                anchors.centerIn: parent
-            }
-
-            MouseArea {
-                id: increaseLivingCellsMouseArea
-                anchors.fill: parent
-                //onClicked: gameScenePressed()
-            }
+        spacing: 10
+        MenuButton {
+            text: "Start Simulation"
+            onClicked: startSimulationPressed()
         }
-
-        Text {
-            id: livingCellsText
-            text: setupLivingCells
-        }
-
-        Rectangle {
-            width: 150
-            height: 50
-            color: "orange"
-            Text {
-                id: decreaseLivingCellsButton
-                text: "-"
-                anchors.centerIn: parent
-            }
-            MouseArea {
-                id: decreaseLivingCellsMouseArea
-                anchors.fill: parent
-                //onClicked: frogNetworkView.visible = true
-            }
+        MenuButton {
+            text: "Credits"
+            onClicked: creditsPressed()
         }
     }
 }
