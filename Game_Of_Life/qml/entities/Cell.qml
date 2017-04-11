@@ -2,7 +2,7 @@ import VPlay 2.0
 import QtQuick 2.0
 
 EntityBase {
-    entityId: "cell"
+    entityId: Cell
     entityType: "Cell"
 
     Text {

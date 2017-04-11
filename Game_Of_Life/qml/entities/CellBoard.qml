@@ -6,19 +6,13 @@ EntityBase {
     entityId: CellBoard
     entityType: "CellBoard"
 
-    EntityManager {
-         id: cellBoardEntityManager
-         entityContainer: cellBoard
-    }
-
-
     Component.onCompleted: {
         for (var x = 0; x < 10; x++)
         {
             for (var y = 0; y < 10; y++)
             {
-                //var z = cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), {"isAlive": false, "positionX": x, "positionY": y});
-                cellBoardEntityManager.createEntityFromUrl(Qt.resolvedUrl("Cell.qml"));
+                cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), {"isAlive": false, "positionX": x, "positionY": y});
+                //cellBoardEntityManager.createEntityFromUrl(Qt.resolvedUrl("Cell.qml"));
             }
         }
 

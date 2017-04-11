@@ -19,6 +19,11 @@ Scene {
          entityContainer: golScene
     }
 
+    EntityManager {
+         id: cellBoardEntityManager
+         entityContainer: golScene
+    }
+
     Rectangle {
         id: sceneBackground
         anchors.fill: parent
