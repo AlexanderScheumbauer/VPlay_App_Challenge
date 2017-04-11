@@ -1,8 +1,0 @@
-{
-    "title": "Game_Of_Life",
-    "identifier": "com.yourcompany.wizardEVP.GameOfLife",
-    "orientation": "landscape",
-    "versioncode": 1,
-    "versionname": "1.0",
-    "stage": "test"
-}
