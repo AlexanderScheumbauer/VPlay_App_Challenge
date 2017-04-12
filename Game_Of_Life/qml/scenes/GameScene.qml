@@ -39,6 +39,11 @@ SceneBase {
         cellBoard.initializeField(numberOfLivingCells);
     }
 
+    function getNumberOfCells()
+    {
+        return cellBoard.boardSize * cellBoard.boardSize;
+    }
+
     // back button to leave scene
      MenuButton {
          text: "Back"

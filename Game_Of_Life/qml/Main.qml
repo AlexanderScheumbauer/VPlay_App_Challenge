@@ -22,7 +22,7 @@ GameWindow {
     function doStartSimulationPressed()
     {
         gameWindow.state = "game"
-        gameScene.startGame(10);
+        gameScene.startGame(setupLivingCells);
     }
 
     // game scene
@@ -60,13 +60,15 @@ GameWindow {
         }
     ]
 
-    function doIncreseLivingCells()
+    function doIncreaseLivingCells()
     {
-
+        if (setupLivingCells < gameScene.getNumberOfCells())
+            ++setupLivingCells;
     }
 
     function doDecreaseLivingCells()
     {
-
+        if (setupLivingCells > 0)
+            --setupLivingCells;
     }
 }

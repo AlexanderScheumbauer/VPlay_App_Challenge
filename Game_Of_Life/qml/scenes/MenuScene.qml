@@ -25,7 +25,7 @@ SceneBase {
         y: 30
         font.pixelSize: 30
         color: "#e9e9e9"
-        text: "MultiSceneMultiLevel"
+        text: "The Game of Life"
     }
 
     // menu
@@ -42,7 +42,7 @@ SceneBase {
                 text: "Increase living cells"
                 onClicked: increaseLivingCells()
             }
-            Text {
+            MenuButton {
                 id: livingCellsText
                 text: setupLivingCells
             }
