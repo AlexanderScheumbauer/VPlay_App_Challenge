@@ -51,34 +51,42 @@ Item {
         var randomDeadCellIndex;
         do
         {
-            randomDeadCellIndex = generateRandomValueBetween(0, board.length());
-        } while(board[randomDeadCellIndex].isAlive === true)
+            randomDeadCellIndex = getRandomInt(0, board.length);
+        } while(board[randomDeadCellIndex].isAlilve === true)
 
         return randomDeadCellIndex;
+    }
+
+    // Gibt eine Zufallszahl zwischen min (inklusive) und max (inklusive) zurück
+    // Die Verwendung von Math.round() erzeugt keine gleichmäßige Verteilung!
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min +1)) + min;
     }
 
     // clear game field
     function clearField() {
         // remove entities
-        for(var i = 0; i < field.length; i++)
+        for(var i = 0; i < board.length; i++)
         {
-            var block = field[i]
+            var block = board[i]
             if(block !== null)
             {
                 cellBoardEntityManager.removeEntityById(block.entityId)
             }
         }
-        gameArea.field = []
+        board = []
     }
 
     // create a new block at specific position
     function createBlock(row, column) {
         // configure block
         var entityProperties = {
-            width: blockSize,
-            height: blockSize,
-            x: column * blockSize,
-            y: row * blockSize,
+            width: cellSize,
+            height: cellSize,
+            x: column * cellSize,
+            y: row * cellSize,
             isAlive: false,
             row: row,
             column: column

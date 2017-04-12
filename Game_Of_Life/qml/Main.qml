@@ -14,10 +14,15 @@ GameWindow {
     // menu scene
     MenuScene {
         id: menuScene
-        // listen to the button signals of the scene and change the state according to it
-        onStartSimulationPressed: gameWindow.state = "game"
-        onIncreaseLivingCells: doIncreaseLivingCells()
-        onDecreaseLivingCells: doDecreaseLivingCells()
+        onStartSimulationPressed: doStartSimulationPressed();
+        onIncreaseLivingCells: doIncreaseLivingCells();
+        onDecreaseLivingCells: doDecreaseLivingCells();
+    }
+
+    function doStartSimulationPressed()
+    {
+        gameWindow.state = "game"
+        gameScene.startGame(10);
     }
 
     // game scene
@@ -45,7 +50,7 @@ GameWindow {
         },
         State {
             name: "game"
-            PropertyChanges {target: golScene; opacity: 1}
+            PropertyChanges {target: gameScene; opacity: 1}
             PropertyChanges {target: gameWindow; activeScene: gameScene}
         },
         State {

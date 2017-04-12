@@ -11,17 +11,14 @@ EntityBase {
 
     Image {
         id: cellImage
+        source: "../../assets/Banana.png"
     }
 
     function setIsAlive(isAliveFlag)
     {
         if (isAlive == true)
-        {
-            cellImage.source: "../assets/Apple.png"
-        }
+            cellImage.source = "../../assets/assets/Apple.png"
         else
-        {
-            cellImage.source: "../assets/Banana.png"
-        }
+            cellImage.source = "../../assets/assets/Banana.png"
     }
 }
