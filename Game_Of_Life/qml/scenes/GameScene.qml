@@ -7,6 +7,10 @@ import "../entities"
 SceneBase {
     id: gameScene
 
+    // the "logical size" - the scene content is auto-scaled to match the GameWindow size
+    width: 320
+    height: 480
+
     property bool gameRunning: false
 
     sceneAlignmentY: top
@@ -44,13 +48,27 @@ SceneBase {
         return cellBoard.boardSize * cellBoard.boardSize;
     }
 
-    // back button to leave scene
-     MenuButton {
-         text: "Back"
-         anchors.right: gameScene.gameWindowAnchorItem.right
-         anchors.rightMargin: 10
-         anchors.top: gameScene.gameWindowAnchorItem.top
-         anchors.topMargin: 10
-         onClicked: backButtonPressed()
+    Column {
+        anchors.right: gameScene.gameWindowAnchorItem.right
+        anchors.rightMargin: 10
+        anchors.top: gameScene.gameWindowAnchorItem.top
+        anchors.topMargin: 10
+
+        Row {
+            MenuButton {
+                text: "Current Simulation Round:"
+            }
+            Text {
+                text: currentSimulationRound
+            }
+        }
+
+        // back button to leave scene
+         MenuButton {
+             text: "Abort Simulation"
+             onClicked: backButtonPressed()
+        }
     }
+
+
 }

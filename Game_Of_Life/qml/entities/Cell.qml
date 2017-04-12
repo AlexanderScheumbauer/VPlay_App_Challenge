@@ -9,16 +9,21 @@ EntityBase {
     property int row
     property int column
 
-    Image {
+    Rectangle {
         id: cellImage
-        source: "../../assets/Banana.png"
+        anchors.fill: parent
+        color: "red"
+        border.color: "black"
+        border.width: 1
     }
 
     function setIsAlive(isAliveFlag)
     {
+        isAlive = isAliveFlag;
+
         if (isAlive == true)
-            cellImage.source = "../../assets/assets/Apple.png"
+            cellImage.color = "green"
         else
-            cellImage.source = "../../assets/assets/Banana.png"
+            cellImage.color = "red"
     }
 }

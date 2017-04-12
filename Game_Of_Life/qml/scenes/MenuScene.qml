@@ -13,6 +13,9 @@ SceneBase {
     signal increaseLivingCells
     signal decreaseLivingCells
 
+    signal increaseSimulationRounds
+    signal decreaseSimulationRounds
+
     // background
     Rectangle {
         anchors.fill: parent.gameWindowAnchorItem
@@ -49,6 +52,20 @@ SceneBase {
             MenuButton {
                 text: "Decrease living cells"
                 onClicked: decreaseLivingCells()
+            }
+        }
+        Row {
+            MenuButton {
+                text: "Increase Simulations rounds"
+                onClicked: increaseSimulationRounds()
+            }
+            MenuButton {
+                id: simulationRoundsText
+                text: setupSimulationsRounds
+            }
+            MenuButton {
+                text: "Decrease Simulation rounds"
+                onClicked: decreaseSimulationRounds()
             }
         }
     }

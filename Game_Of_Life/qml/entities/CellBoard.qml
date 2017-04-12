@@ -35,7 +35,7 @@ Item {
         {
             for(var j = 0; j < columns; j++)
             {
-                board[index(i, j)] = createBlock(i, j);
+                board[index(i, j)] = createCell(i, j);
             }
         }
 
@@ -79,8 +79,8 @@ Item {
         board = []
     }
 
-    // create a new block at specific position
-    function createBlock(row, column) {
+    // create a new cell at specific position
+    function createCell(row, column) {
         // configure block
         var entityProperties = {
             width: cellSize,

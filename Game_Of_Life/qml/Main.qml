@@ -10,6 +10,9 @@ GameWindow {
     screenHeight: 640
 
     property int setupLivingCells: 2
+    property int setupSimulationsRounds: 1
+
+    property int currentSimulationRound
 
     // menu scene
     MenuScene {
@@ -17,10 +20,11 @@ GameWindow {
         onStartSimulationPressed: doStartSimulationPressed();
         onIncreaseLivingCells: doIncreaseLivingCells();
         onDecreaseLivingCells: doDecreaseLivingCells();
+        onIncreaseSimulationRounds: doIncreaseSimulationRounds();
+        onDecreaseSimulationRounds: doDecreaseSimulationRounds();
     }
 
-    function doStartSimulationPressed()
-    {
+    function doStartSimulationPressed() {
         gameWindow.state = "game"
         gameScene.startGame(setupLivingCells);
     }
@@ -28,13 +32,13 @@ GameWindow {
     // game scene
     GameScene {
         id: gameScene
-        onBackButtonPressed: gameWindow.state = "menu"
+        onBackButtonPressed: doResetSimulation()
     }
 
-    // credits scene
-    CreditsScene {
-        id: creditsScene
-        onBackButtonPressed: gameWindow.state = "menu"
+    function doResetSimulation() {
+        gameWindow.state = "menu"
+        setupLivingCells = 2
+        setupSimulationsRounds = 1
     }
 
     // default state is menu -> default scene is menuScene
@@ -52,23 +56,25 @@ GameWindow {
             name: "game"
             PropertyChanges {target: gameScene; opacity: 1}
             PropertyChanges {target: gameWindow; activeScene: gameScene}
-        },
-        State {
-            name: "credits"
-            PropertyChanges {target: creditsScene; opacity: 1}
-            PropertyChanges {target: gameWindow; activeScene: creditsScene}
         }
     ]
 
-    function doIncreaseLivingCells()
-    {
+    function doIncreaseLivingCells() {
         if (setupLivingCells < gameScene.getNumberOfCells())
             ++setupLivingCells;
     }
 
-    function doDecreaseLivingCells()
-    {
+    function doDecreaseLivingCells() {
         if (setupLivingCells > 0)
             --setupLivingCells;
+    }
+
+    function doIncreaseSimulationRounds() {
+        ++setupSimulationsRounds;
+    }
+
+    function doDecreaseSimulationRounds() {
+        if (setupSimulationsRounds > 1)
+            --setupSimulationsRounds;
     }
 }
