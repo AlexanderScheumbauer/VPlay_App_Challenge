@@ -7,12 +7,11 @@ import "../entities"
 SceneBase {
     id: menuScene
 
-    //property int setupLivingCells: 0
-
     // signal indicating that the gameScene should be displayed
     signal startSimulationPressed
-    // signal indicating that the creditsScene should be displayed
-    signal creditsPressed
+
+    signal increaseLivingCells
+    signal decreaseLivingCells
 
     // background
     Rectangle {
@@ -37,9 +36,20 @@ SceneBase {
             text: "Start Simulation"
             onClicked: startSimulationPressed()
         }
-        /*MenuButton {
-            text: "Credits"
-            onClicked: creditsPressed()
-        }*/
+
+        Row {
+            MenuButton {
+                text: "Increase living cells"
+                onClicked: increaseLivingCells()
+            }
+            Text {
+                id: livingCellsText
+                text: setupLivingCells
+            }
+            MenuButton {
+                text: "Decrease living cells"
+                onClicked: decreaseLivingCells()
+            }
+        }
     }
 }

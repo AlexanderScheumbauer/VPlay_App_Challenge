@@ -2,7 +2,7 @@ import VPlay 2.0
 import QtQuick 2.0
 
 EntityBase {
-    entityId: cellBoard
+    entityId: "cellBoard"
     entityType: "CellBoard"
 
     // The board will always be square, so just one value needed

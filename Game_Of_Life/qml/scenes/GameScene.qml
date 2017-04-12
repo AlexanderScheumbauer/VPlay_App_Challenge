@@ -11,7 +11,8 @@ SceneBase {
 
     sceneAlignmentY: top
 
-    signal menuScenePressed
+    // signal indicating that the creditsScene should be displayed
+    signal creditsPressed
 
     // TODO: Add the background, UI elements
 
@@ -31,23 +32,6 @@ SceneBase {
         height: parent.height - 10;
         anchors.right: parent.left
     }
-
-    /*Rectangle {
-        id: menuButton
-        x: gameScene.width - 96
-        y: -40
-        scale: 0.5
-        MouseArea {
-            id: menuButtonMouseArea
-            anchors.fill: parent
-            onClicked: {
-                menuScenePressed() // trigger the menuScenePressed signal
-
-                // reset the golScene
-                golScene.state = "start"
-            }
-        }
-    }*/
 
     // back button to leave scene
      MenuButton {

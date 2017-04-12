@@ -9,16 +9,15 @@ GameWindow {
     screenWidth: 960
     screenHeight: 640
 
-    EntityManager {
-        id: entityManager
-    }
+    property int setupLivingCells: 2
 
     // menu scene
     MenuScene {
         id: menuScene
         // listen to the button signals of the scene and change the state according to it
         onStartSimulationPressed: gameWindow.state = "game"
-        //onCreditsPressed: gameWindow.state = "credits"
+        onIncreaseLivingCells: doIncreaseLivingCells()
+        onDecreaseLivingCells: doDecreaseLivingCells()
     }
 
     // game scene
@@ -55,4 +54,14 @@ GameWindow {
             PropertyChanges {target: gameWindow; activeScene: creditsScene}
         }
     ]
+
+    function doIncreseLivingCells()
+    {
+
+    }
+
+    function doDecreaseLivingCells()
+    {
+
+    }
 }
