@@ -45,8 +45,8 @@ SceneBase {
                 text: "Increase living cells"
                 onClicked: increaseLivingCells()
             }
-            MenuButton {
-                id: livingCellsText
+            MenuLabel {
+                id: livingCellsLabel
                 text: setupLivingCells
             }
             MenuButton {
@@ -59,8 +59,8 @@ SceneBase {
                 text: "Increase Simulations rounds"
                 onClicked: increaseSimulationRounds()
             }
-            MenuButton {
-                id: simulationRoundsText
+            MenuLabel {
+                id: simulationRoundsLabel
                 text: setupSimulationsRounds
             }
             MenuButton {

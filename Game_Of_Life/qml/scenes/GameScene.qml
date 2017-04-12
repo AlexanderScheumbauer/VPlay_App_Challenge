@@ -16,11 +16,6 @@ SceneBase {
     sceneAlignmentY: "top"
     sceneAlignmentX: "left"
 
-    // signal indicating that the creditsScene should be displayed
-    signal creditsPressed
-
-    // TODO: Add the background, UI elements
-
     EntityManager {
          id: cellBoardEntityManager
          entityContainer: gameScene
@@ -54,13 +49,8 @@ SceneBase {
         anchors.top: gameScene.gameWindowAnchorItem.top
         anchors.topMargin: 10
 
-        Row {
-            MenuButton {
-                text: "Current Simulation Round:"
-            }
-            Text {
-                text: currentSimulationRound
-            }
+        MenuLabel {
+            text: "Current Simulation Round: " + currentSimulationRound
         }
 
         // back button to leave scene
