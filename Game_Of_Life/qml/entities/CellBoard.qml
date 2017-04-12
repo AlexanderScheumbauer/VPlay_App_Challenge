@@ -16,6 +16,7 @@ Item {
 
     // array for handling cell board
     property var board: []
+    property var nextBoard: []
 
     // game over signal
     signal simulationOver()
@@ -25,8 +26,8 @@ Item {
         return row * columns + column
     }
 
-    // fill game field with blocks
-    function initializeField(numberOfLivingCells) {
+    // fill board with cells
+    function initializeBoard(numberOfLivingCells) {
         // clear field
         clearField();
 
@@ -44,6 +45,8 @@ Item {
         {
             board[getRandomDeadCellIndex()].setIsAlive(true);
         }
+
+        nextBoard = board
     }
 
     function getRandomDeadCellIndex()
@@ -96,4 +99,15 @@ Item {
         var id = cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), entityProperties)
         return cellBoardEntityManager.getEntityById(id)
     }
+
+    function doSimulationStep() {
+
+
+
+        ++currentSimulationRound;
+
+        if (currentSimulationRound == setupSimulationsRounds)
+            simulationRunning = false
+    }
+
 }

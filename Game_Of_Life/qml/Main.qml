@@ -12,7 +12,7 @@ GameWindow {
     property int setupLivingCells: 2
     property int setupSimulationsRounds: 1
 
-    property int currentSimulationRound
+    property int currentSimulationRound: 0
 
     // menu scene
     MenuScene {
@@ -37,8 +37,10 @@ GameWindow {
 
     function doResetSimulation() {
         gameWindow.state = "menu"
+        gameScene.simulationRunning = false
         setupLivingCells = 2
         setupSimulationsRounds = 1
+        currentSimulationRound = 0
     }
 
     // default state is menu -> default scene is menuScene

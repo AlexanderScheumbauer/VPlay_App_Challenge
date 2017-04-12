@@ -11,7 +11,7 @@ SceneBase {
     width: 320
     height: 480
 
-    property bool gameRunning: false
+    property bool simulationRunning: false
 
     sceneAlignmentY: "top"
     sceneAlignmentX: "left"
@@ -36,7 +36,8 @@ SceneBase {
 
     // initialize game
     function startGame(numberOfLivingCells) {
-        cellBoard.initializeField(numberOfLivingCells);
+        cellBoard.initializeBoard(numberOfLivingCells);
+        simulationRunning = false
     }
 
     function getNumberOfCells() {
@@ -60,5 +61,12 @@ SceneBase {
         }
     }
 
+    Timer {
+        id: simulationTimer
+        running: simulationRunning
+        interval: 50 // milliseconds
+        repeat: true
+        onTriggered: cellBoard.doSimulationStep()
+    }
 
 }
