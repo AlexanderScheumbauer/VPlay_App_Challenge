@@ -9,7 +9,7 @@ Item {
     height: cellSize * boardSize
 
     // The board will always be square, so just one value needed
-    property int boardSize: 10
+    property int boardSize: 15
     property double cellSize
     property int rows: Math.floor(height / cellSize)
     property int columns: Math.floor(width / cellSize)

@@ -13,7 +13,8 @@ SceneBase {
 
     property bool gameRunning: false
 
-    sceneAlignmentY: top
+    sceneAlignmentY: "top"
+    sceneAlignmentX: "left"
 
     // signal indicating that the creditsScene should be displayed
     signal creditsPressed
@@ -28,7 +29,7 @@ SceneBase {
     // background
     Rectangle {
         anchors.fill: parent.gameWindowAnchorItem
-        color: "#dd94da"
+        color: "grey"
     }
 
     CellBoard {
@@ -43,8 +44,7 @@ SceneBase {
         cellBoard.initializeField(numberOfLivingCells);
     }
 
-    function getNumberOfCells()
-    {
+    function getNumberOfCells() {
         return cellBoard.boardSize * cellBoard.boardSize;
     }
 
