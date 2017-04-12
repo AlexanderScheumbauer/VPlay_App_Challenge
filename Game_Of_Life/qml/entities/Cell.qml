@@ -2,19 +2,26 @@ import VPlay 2.0
 import QtQuick 2.0
 
 EntityBase {
+    id: cell
     entityType: "Cell"
 
-    Text {
-        id: cellText
-        text: qsTr("O")
+    property bool isAlive: false
+    property int row
+    property int column
+
+    Image {
+        id: cellImage
     }
 
-    property bool isAlive: false
-    property int positionX: 0
-    property int positionY: 0
-
-    Component.onCompleted: {
-        x = positionX
-        y = positionY
+    function setIsAlive(isAliveFlag)
+    {
+        if (isAlive == true)
+        {
+            cellImage.source: "../assets/Apple.png"
+        }
+        else
+        {
+            cellImage.source: "../assets/Banana.png"
+        }
     }
 }

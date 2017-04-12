@@ -29,8 +29,14 @@ SceneBase {
 
     CellBoard {
         id: cellBoard
-        height: parent.height - 10;
-        anchors.right: parent.left
+        anchors.horizontalCenter: gameScene.horizontalCenter
+        cellSize: 30
+        y: 20
+    }
+
+    // initialize game
+    function startGame(numberOfLivingCells) {
+        cellBoard.initializeField(numberOfLivingCells);
     }
 
     // back button to leave scene
