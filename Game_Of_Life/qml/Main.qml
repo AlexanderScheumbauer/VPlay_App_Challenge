@@ -17,19 +17,20 @@ GameWindow {
     MenuScene {
         id: menuScene
         // listen to the button signals of the scene and change the state according to it
-        startSimulationPressed: gameWindow.state = "game"
-        creditsPressed: gameWindow.state = "credits"
+        onStartSimulationPressed: gameWindow.state = "game"
+        //onCreditsPressed: gameWindow.state = "credits"
     }
 
     // game scene
     GameScene {
         id: gameScene
-        //onMenuScenePressed: gameWindow.state = "menu"
+        onBackButtonPressed: gameWindow.state = "menu"
     }
 
     // credits scene
     CreditsScene {
         id: creditsScene
+        onBackButtonPressed: gameWindow.state = "menu"
     }
 
     // default state is menu -> default scene is menuScene

@@ -37,9 +37,9 @@ SceneBase {
             text: "Start Simulation"
             onClicked: startSimulationPressed()
         }
-        MenuButton {
+        /*MenuButton {
             text: "Credits"
             onClicked: creditsPressed()
-        }
+        }*/
     }
 }

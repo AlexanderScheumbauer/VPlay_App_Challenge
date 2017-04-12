@@ -32,7 +32,7 @@ SceneBase {
         anchors.right: parent.left
     }
 
-    Rectangle {
+    /*Rectangle {
         id: menuButton
         x: gameScene.width - 96
         y: -40
@@ -47,5 +47,15 @@ SceneBase {
                 golScene.state = "start"
             }
         }
+    }*/
+
+    // back button to leave scene
+     MenuButton {
+         text: "Back"
+         anchors.right: gameScene.gameWindowAnchorItem.right
+         anchors.rightMargin: 10
+         anchors.top: gameScene.gameWindowAnchorItem.top
+         anchors.topMargin: 10
+         onClicked: backButtonPressed()
     }
 }
