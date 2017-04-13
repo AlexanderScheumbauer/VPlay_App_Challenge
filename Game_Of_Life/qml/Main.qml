@@ -18,8 +18,8 @@ GameWindow {
         onStartSimulationPressed: doStartSimulationPressed();
         onIncreaseLivingCells: doIncreaseLivingCells();
         onDecreaseLivingCells: doDecreaseLivingCells();
-        onIncreaseSimulationRounds: doIncreaseSimulationRounds();
-        onDecreaseSimulationRounds: doDecreaseSimulationRounds();
+        onIncreaseSimulationSteps: doIncreaseSimulationSteps();
+        onDecreaseSimulationSteps: doDecreaseSimulationSteps();
     }
 
     GameScene {
@@ -68,11 +68,11 @@ GameWindow {
             --setupLivingCells;
     }
 
-    function doIncreaseSimulationRounds() {
+    function doIncreaseSimulationSteps() {
         ++setupSimulationSteps;
     }
 
-    function doDecreaseSimulationRounds() {
+    function doDecreaseSimulationSteps() {
         if (setupSimulationSteps > 1)
             --setupSimulationSteps;
     }

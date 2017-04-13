@@ -10,12 +10,13 @@ Rectangle {
 
     // access the text of the Text component
     property alias text: labelText.text
+    property alias textColor: labelText.color
 
     // this will be the default size, it is the same size as the contained text + some padding
     width: labelText.width + paddingHorizontal * 2
     height: labelText.height + paddingVertical * 2
 
-    color: "grey"
+    color: "#47688e"
 
     // round edges
     radius: 10

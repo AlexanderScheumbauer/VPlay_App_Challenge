@@ -7,22 +7,16 @@ import "../entities"
 SceneBase {
     id: menuScene
 
-    // signal indicating that the gameScene should be displayed
+    // Signal indicating that the gameScene should be displayed and the simulation can start
     signal startSimulationPressed
-
+    // Signals to trigger an in-/decrease of living cells at the begin of the simulation
     signal increaseLivingCells
     signal decreaseLivingCells
+    // Signals to trigger an in-/decrease of simulation steps to be performed
+    signal increaseSimulationSteps
+    signal decreaseSimulationSteps
 
-    signal increaseSimulationRounds
-    signal decreaseSimulationRounds
-
-    // background
-    Rectangle {
-        anchors.fill: parent.gameWindowAnchorItem
-        color: "#47688e"
-    }
-
-    // the "logo"
+    // Headline with the name of the app
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         y: 30
@@ -31,7 +25,7 @@ SceneBase {
         text: "The Game of Life"
     }
 
-    // menu
+    // UI for setting up the simulation details
     Column {
         anchors.centerIn: parent
         spacing: 10
@@ -42,30 +36,36 @@ SceneBase {
 
         Row {
             MenuButton {
-                text: "Increase living cells"
-                onClicked: increaseLivingCells()
+                text: "-"
+                onClicked: decreaseLivingCells()
             }
             MenuLabel {
-                id: livingCellsLabel
                 text: setupLivingCells
             }
             MenuButton {
-                text: "Decrease living cells"
-                onClicked: decreaseLivingCells()
+                text: "+"
+                onClicked: increaseLivingCells()
+            }
+            MenuLabel {
+                text: "Define number of living cells"
+                color: "#47688e"
             }
         }
         Row {
             MenuButton {
-                text: "Increase Simulations rounds"
-                onClicked: increaseSimulationRounds()
+                text: "-"
+                onClicked: decreaseSimulationSteps()
             }
             MenuLabel {
-                id: simulationRoundsLabel
                 text: setupSimulationSteps
             }
             MenuButton {
-                text: "Decrease Simulation rounds"
-                onClicked: decreaseSimulationRounds()
+                text: "+"
+                onClicked: increaseSimulationSteps()
+            }
+            MenuLabel {
+                text: "Define number of simulation steps"
+                color: "#47688e"
             }
         }
     }

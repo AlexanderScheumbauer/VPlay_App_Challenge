@@ -14,4 +14,10 @@ Scene {
     visible: opacity > 0
     // If the scene is invisible, we disable it. In Qt 5, components are also enabled if they are invisible. This means any MouseArea in the Scene would still be active even we hide the Scene, since we do not want this to happen, we disable the Scene (and therefore also its children) if it is hidden
     enabled: visible
+
+    // Background
+    Rectangle {
+        anchors.fill: parent.gameWindowAnchorItem
+        color: "#47688e"
+    }
 }

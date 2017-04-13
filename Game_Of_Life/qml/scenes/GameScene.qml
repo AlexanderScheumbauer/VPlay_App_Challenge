@@ -7,26 +7,22 @@ import "../entities"
 SceneBase {
     id: gameScene
 
+    property bool simulationRunning: false
+
     // the "logical size" - the scene content is auto-scaled to match the GameWindow size
     width: 320
     height: 480
 
-    property bool simulationRunning: false
-
     sceneAlignmentY: "top"
     sceneAlignmentX: "left"
 
+    // The entitiy  manager which will store all cells of our board
     EntityManager {
          id: cellBoardEntityManager
          entityContainer: gameScene
     }
 
-    // background
-    Rectangle {
-        anchors.fill: parent.gameWindowAnchorItem
-        color: "grey"
-    }
-
+    // The cellboard which will perform filling, clearing and calculation of the cells
     CellBoard {
         id: cellBoard
         anchors.horizontalCenter: gameScene.horizontalCenter
@@ -34,33 +30,50 @@ SceneBase {
         y: 20
     }
 
-    // initialize game
+    // Start game
     function startGame(numberOfLivingCells) {
         cellBoard.initializeBoard(numberOfLivingCells);
         simulationRunning = true
     }
 
+    // Returns the total number of cells
     function getNumberOfCells() {
         return cellBoard.boardSize * cellBoard.boardSize;
     }
 
+    // UI displaying infos about the current state
     Column {
         anchors.right: gameScene.gameWindowAnchorItem.right
         anchors.rightMargin: 10
         anchors.top: gameScene.gameWindowAnchorItem.top
         anchors.topMargin: 10
 
-        MenuLabel {
-            text: "Current Simulation Round: " + currentSimulationStep
+        Row {
+            MenuLabel {
+                text: "Current Simulation Round: " + currentSimulationStep
+                paddingVertical: 10
+            }
         }
-
-        // back button to leave scene
-         MenuButton {
-             text: "Abort Simulation"
-             onClicked: backButtonPressed()
-        }
+        Row {
+             MenuLabel {
+                 text: "Simulation finished!"
+                 visible: !simulationRunning
+                 textColor: "red"
+             }
+         }
     }
 
+    // back button to leave scene
+     MenuButton {
+         anchors.right: gameScene.gameWindowAnchorItem.right
+         anchors.rightMargin: 10
+         anchors.bottom: gameScene.gameWindowAnchorItem.bottom
+         anchors.bottomMargin: 10
+         text: "Abort Simulation"
+         onClicked: backButtonPressed()
+    }
+
+    // The timer which triggers and and controls the speed of the simulation
     Timer {
         id: simulationTimer
         running: simulationRunning
