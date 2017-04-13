@@ -61,7 +61,7 @@ SceneBase {
             }
             MenuLabel {
                 id: simulationRoundsLabel
-                text: setupSimulationsRounds
+                text: setupSimulationSteps
             }
             MenuButton {
                 text: "Decrease Simulation rounds"

@@ -4,34 +4,38 @@ import QtQuick 2.0
 Item {
     id: cellBoard
 
-    // shall be a multiple of the blockSize
-    width: cellSize * boardSize
-    height: cellSize * boardSize
-
-    // The board will always be square, so just one value needed
+    // The board will always be square, so just one value needed (defines one dimension)
     property int boardSize: 15
     property double cellSize
     property int columns: Math.floor(width / cellSize)
     property int rows: Math.floor(height / cellSize)
 
-    // array for handling cell board
-    property var board: []
-    property var nextBoard: []
+    // Arrays for handling the cells on the board
+    property var board: []      // The board which is displayed
+    property var nextBoard: []  // The where changes happen before they are applied to the display
 
-    // game over signal
-    signal simulationOver()
+    // Helper variables to define speaking names for the border values of the board
+    property int leftBorder: 0
+    property int rightBorder: columns - 1
+    property int upperBorder: 0
+    property int lowerBorder: rows - 1
 
-    // calculate field index
+    signal simulationOver
+
+    // Shall be a multiple of the cellSize
+    width: cellSize * boardSize
+    height: cellSize * boardSize
+
+    // Calculate cell index
     function index(row, column) {
         return row * columns + column
     }
 
-    // fill board with cells
+    // Fill board with cells
     function initializeBoard(numberOfLivingCells) {
-        // clear field
-        clearField();
+        clearBoard();
 
-        // fill field
+        // Fill board
         for(var y = 0; y < rows; y++)
         {
             for(var x = 0; x < columns ; x++)
@@ -45,13 +49,15 @@ Item {
         {
             board[getRandomDeadCellIndex()].setIsAlive(true);
         }
-
+        // Handover the newly created board so both ones are identical for the start
         nextBoard = board
     }
 
+    // Returns a random dead cell index
     function getRandomDeadCellIndex()
     {
         var randomDeadCellIndex;
+        // Iterate until a random dead cell got found
         do
         {
             randomDeadCellIndex = getRandomInt(0, board.length);
@@ -60,31 +66,33 @@ Item {
         return randomDeadCellIndex;
     }
 
-    // Gibt eine Zufallszahl zwischen min (inklusive) und max (exklusive) zurück
-    // Die Verwendung von Math.round() erzeugt keine gleichmäßige Verteilung!
+    // Returns random number between "min" (inclusive) and max (exclusive)
     function getRandomInt(min, max) {
       min = Math.ceil(min);
       max = Math.floor(max);
       return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    // clear game field
-    function clearField() {
-        // remove entities
-        for(var i = 0; i < board.length; i++)
+    // Clear the board
+    function clearBoard() {
+        for(var i = 0; i < board.length; i++)   // Remove entities
         {
-            var block = board[i]
-            if(block !== null)
-            {
-                cellBoardEntityManager.removeEntityById(block.entityId)
-            }
+            var cell = board[i]
+            if(cell !== null)
+
+
+            var nextBoardCell = nextBoard[i]
+            if (nextBoardCell !== null)
+                cellBoardEntityManager.removeEntityById(nextBoardCell.entityId)
         }
+
         board = []
+        nextBoard = []
     }
 
-    // create a new cell at specific position
+    // Create a new cell at specific position
     function createCell(row, column) {
-        // configure block
+        // Configure cell
         var entityProperties = {
             width: cellSize,
             height: cellSize,
@@ -95,13 +103,14 @@ Item {
             column: column
         }
 
-        // add cell to cellBoard
+        // Create a new entitiy with our properties and return it
         var id = cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), entityProperties)
         return cellBoardEntityManager.getEntityById(id)
     }
 
+    // Works through a single full simulation step with all cell changes
     function doSimulationStep() {
-
+        // Iterate over all cells to recalculate them
         for(var y = 0; y < rows; y++)
         {
             for(var x = 0; x < columns; x++)
@@ -110,21 +119,22 @@ Item {
             }
         }
 
+        // Update the the displayed version
         board = nextBoard
 
-        ++currentSimulationRound;
+        // The current simulation round is over so we increase to the next
+        ++currentSimulationStep
 
-        if (currentSimulationRound == setupSimulationsRounds)
+        // If we went through the desired number of simulationsteps, we stop
+        if (currentSimulationStep == setupSimulationSteps)
             simulationRunning = false
     }
 
+    // Returns an array with all neighbours for the cell on the given coordinates
     function getCellNeighbours(row, column)
     {
         var neighbourCells = []
-        var leftBorder = 0
-        var rightBorder = columns -1
-        var upperBorder = 0
-        var lowerBorder = rows - 1
+        // Precalculate the different possiblites of where the given cell is located
         var isLeftUpperCorner = (column === leftBorder && row === upperBorder)
         var isRightUpperCorner = (column === rightBorder && row === upperBorder)
         var isLeftLowerCorner = (column === leftBorder && row === lowerBorder)
@@ -134,69 +144,71 @@ Item {
         var isUpperBorder = row === upperBorder
         var isLowerBorder = row === lowerBorder
 
+        // Handle each case and depending on it, store the neighbouring cells
         if (isLeftUpperCorner) {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[2] = nextBoard[index(row + 1, column + 1)]  // Lower Right Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[2] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
         }
         else if (isRightUpperCorner) {
-            neighbourCells[0] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[1] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[2] = nextBoard[index(row + 1, column - 1)]  // Lower Left Neighbour
+            neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[2] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
         }
         else if (isLeftLowerCorner) {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[2] = nextBoard[index(row - 1, column + 1)]  // Upper Right Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[2] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
         }
         else if (isRightLowerCorner) {
-            neighbourCells[0] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[1] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[2] = nextBoard[index(row - 1, column - 1)]  // Upper Left Neighbour
+            neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[2] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
         }
         else if (isLeftBorder) {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[2] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[3] = nextBoard[index(row + 1, column + 1)]  // Lower Right Neighbour
-            neighbourCells[4] = nextBoard[index(row - 1, column + 1)]  // Upper Right Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+            neighbourCells[4] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
         }
         else if (isRightBorder) {
-            neighbourCells[0] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[1] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[2] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[3] = nextBoard[index(row + 1, column - 1)]  // Lower Left Neighbour
-            neighbourCells[4] = nextBoard[index(row - 1, column - 1)]  // Upper Left Neighbour
+            neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[3] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+            neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
         }
         else if (isUpperBorder) {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[2] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[3] = nextBoard[index(row + 1, column + 1)]  // Lower Right Neighbour
-            neighbourCells[4] = nextBoard[index(row + 1, column - 1)]  // Lower Left Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+            neighbourCells[4] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
 
         }
         else if (isLowerBorder) {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[2] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[3] = nextBoard[index(row - 1, column + 1)]  // Upper Right Neighbour
-            neighbourCells[4] = nextBoard[index(row - 1, column - 1)]  // Upper Left Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[3] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+            neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
         }
         else {
-            neighbourCells[0] = nextBoard[index(row, column + 1)]          // Right Neighbour
-            neighbourCells[1] = nextBoard[index(row, column - 1)]          // Left Neighbour
-            neighbourCells[2] = nextBoard[index(row + 1, column)]          // Lower Neighbour
-            neighbourCells[3] = nextBoard[index(row - 1, column)]          // Upper Neighbour
-            neighbourCells[4] = nextBoard[index(row + 1, column + 1)]  // Lower Right Neighbour
-            neighbourCells[5] = nextBoard[index(row - 1, column + 1)]  // Upper Right Neighbour
-            neighbourCells[6] = nextBoard[index(row + 1, column - 1)]  // Lower Left Neighbour
-            neighbourCells[7] = nextBoard[index(row - 1, column - 1)]  // Upper Left Neighbour
+            neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+            neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+            neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+            neighbourCells[3] = board[index(row - 1, column)]          // Upper Neighbour
+            neighbourCells[4] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+            neighbourCells[5] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+            neighbourCells[6] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+            neighbourCells[7] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
         }
 
         return neighbourCells
     }
 
+    // Performs the actual change of cell, depending on its neighbours
     function calculateCell(row, column, cellNeighbours)
     {
         var livingNeighbours = 0
@@ -212,17 +224,28 @@ Item {
             calculateDeadCell(livingNeighbours, row, column)
     }
 
+    // Performs the changes for a living cell
     function calculateLivingCell(livingNeighbours, row, column)
     {
         if (livingNeighbours <= 1)
+        {
+            // Cell dies due to solitude
             nextBoard[index(row, column)].setIsAlive(false)
+        }
         else if (livingNeighbours >= 4)
+        {
+            // Cell dies due to overpopulation
             nextBoard[index(row, column)].setIsAlive(false)
+        }
     }
 
+    // Performs the changes for a dead cell
     function calculateDeadCell(livingNeighbours, row, column)
     {
         if (livingNeighbours === 3)
+        {
+            // Cell comes to live due to the correct environment
             nextBoard[index(row, column)].setIsAlive(true)
+        }
     }
 }

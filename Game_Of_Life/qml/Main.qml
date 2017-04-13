@@ -10,11 +10,9 @@ GameWindow {
     screenHeight: 640
 
     property int setupLivingCells: 2
-    property int setupSimulationsRounds: 1
+    property int setupSimulationSteps: 1
+    property int currentSimulationStep: 0
 
-    property int currentSimulationRound: 0
-
-    // menu scene
     MenuScene {
         id: menuScene
         onStartSimulationPressed: doStartSimulationPressed();
@@ -24,30 +22,16 @@ GameWindow {
         onDecreaseSimulationRounds: doDecreaseSimulationRounds();
     }
 
-    function doStartSimulationPressed() {
-        gameWindow.state = "game"
-        gameScene.startGame(setupLivingCells);
-    }
-
-    // game scene
     GameScene {
         id: gameScene
         onBackButtonPressed: doResetSimulation()
-    }
-
-    function doResetSimulation() {
-        gameWindow.state = "menu"
-        gameScene.simulationRunning = false
-        setupLivingCells = 2
-        setupSimulationsRounds = 1
-        currentSimulationRound = 0
     }
 
     // default state is menu -> default scene is menuScene
     state: "menu"
     activeScene: menuScene
 
-    // state machine, takes care of reversing the PropertyChanges when changing the state. e.g. it changes the opacity back to 0
+    // state machine, takes care of reversing the PropertyChanges when changing the state
     states: [
         State {
             name: "menu"
@@ -61,6 +45,19 @@ GameWindow {
         }
     ]
 
+    function doStartSimulationPressed() {
+        gameWindow.state = "game"
+        gameScene.startGame(setupLivingCells);
+    }
+
+    function doResetSimulation() {
+        gameWindow.state = "menu"
+        gameScene.simulationRunning = false
+        setupLivingCells = 2
+        setupSimulationSteps = 1
+        currentSimulationStep = 0
+    }
+
     function doIncreaseLivingCells() {
         if (setupLivingCells < gameScene.getNumberOfCells())
             ++setupLivingCells;
@@ -72,11 +69,11 @@ GameWindow {
     }
 
     function doIncreaseSimulationRounds() {
-        ++setupSimulationsRounds;
+        ++setupSimulationSteps;
     }
 
     function doDecreaseSimulationRounds() {
-        if (setupSimulationsRounds > 1)
-            --setupSimulationsRounds;
+        if (setupSimulationSteps > 1)
+            --setupSimulationSteps;
     }
 }

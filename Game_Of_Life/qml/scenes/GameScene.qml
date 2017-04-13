@@ -51,7 +51,7 @@ SceneBase {
         anchors.topMargin: 10
 
         MenuLabel {
-            text: "Current Simulation Round: " + currentSimulationRound
+            text: "Current Simulation Round: " + currentSimulationStep
         }
 
         // back button to leave scene
