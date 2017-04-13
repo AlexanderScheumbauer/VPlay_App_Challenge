@@ -17,6 +17,9 @@ EntityBase {
 
     function setIsAlive(isAliveFlag)
     {
+        if (isAlive === isAliveFlag)
+            return
+
         isAlive = isAliveFlag;
 
         if (isAlive == true)

@@ -37,7 +37,7 @@ SceneBase {
     // initialize game
     function startGame(numberOfLivingCells) {
         cellBoard.initializeBoard(numberOfLivingCells);
-        simulationRunning = false
+        simulationRunning = true
     }
 
     function getNumberOfCells() {
@@ -64,7 +64,7 @@ SceneBase {
     Timer {
         id: simulationTimer
         running: simulationRunning
-        interval: 50 // milliseconds
+        interval: 1000 // milliseconds
         repeat: true
         onTriggered: cellBoard.doSimulationStep()
     }
