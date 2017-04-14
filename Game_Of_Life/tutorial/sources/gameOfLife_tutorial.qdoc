@@ -3,8 +3,35 @@
 	
 	\title Game of Life Tutorial
 	
-	\brief BLLLLAAAAAA
+	\image intro_picture.png
 	
-	TEST TEXT TO FIND OUT
-	if this stuff works as intended.
+	\chapter Introduction
+	
+		This tutorial is about the famous cellular automaton by John Conway - referred to as  \l {https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life}{Conway's Game of Life}.
+		It will concentrate on implementing a basic version of this simulation but will also partly cover topics like \e {"multiple scenes"}, \e {organizing UI elements on the screen} and \e {entitiy communication}.
+		
+		\chapter New Project & the Basics
+		
+		Create a new Empty V-Play Project with the name \b {Game_Of_Life}. Inside the qml directory of your project, create the following new folders: \b {entities} & \b {scenes} (which we will need later).
+		
+		So lets talk briefly about the basic idea and facts of \e {Game of Life} (for more detailed infos, visit the link above).
+		
+		\list 1
+			\li We want to show a two-dimensional board, consisting of cells (one per position x/y)
+			\li A cell has a position on the board (x/y coordinate), has two possible states (dead or alive) and each state is displayed differently
+			\li A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)
+			\li The simulation happens in steps. Changes of cells happen only in between steps
+			\li We want to define how many steps we want to simulate
+			\li The board needs an initial setup of living/dead cells
+		\endlist
+		
+		This already tells us that there are some settings to be adjusted before the actual simulation can start. Therefore it makes sense to start with how we want to split up the game buy using multiple scens.
+	
+	\chapter Multiple scenes
+	
+		\section 1 The base
+		
+			
+		
+	\chapter TODO
 */
