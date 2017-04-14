@@ -1,0 +1,21 @@
+# The outputdir variable specifies the directory where QDoc will put the generated documentation.
+
+outputdir = ./html
+
+# The sourcedirs variable specifies the directories containing the .cpp or .qdoc
+# files used in the documentation.
+
+sourcedirs = ./sources
+
+# The exampledirs variable specifies the directories containing
+# the source code of the example files.
+
+exampledirs = ./examples
+
+# The imagedirs variable specifies the
+# directories containing the images used in the documentation.
+
+imagedirs = ./images
+
+outputformats = HTML
+
