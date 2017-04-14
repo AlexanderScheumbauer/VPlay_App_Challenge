@@ -9,10 +9,6 @@ SceneBase {
 
     property bool simulationRunning: false
 
-    // the "logical size" - the scene content is auto-scaled to match the GameWindow size
-    width: 320
-    height: 480
-
     sceneAlignmentY: "top"
     sceneAlignmentX: "left"
 

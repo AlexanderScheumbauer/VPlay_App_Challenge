@@ -29,9 +29,145 @@
 	
 	\chapter Multiple scenes
 	
-		\section 1 The base
+		\section1 The Base
 		
+			When having multiple versions of the same type, it is always a good idea to think about characteristics they all have in common. If there are enough, its worth creating a common base version.
+			In our case we want to have two different scenes. One as the menu where we can define all the different settings for our simulation and a second one for the simulation itself.
 			
+			Lets start by adding a new scene under the \e {scenes} folder - namely \underline {SceneBase.qml}.
+			
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				// The base for our scenes
+				Scene {
+					id: sceneBase
+					// The "logical size" - the scene content is auto-scaled to match the GameWindow size
+					width: 320
+					height: 480
+
+					// By default, set the opacity to 0 - this will be changed from the Main.qml with PropertyChanges
+					opacity: 0
+					// We set the visible property to false if opacity is 0 because the renderer skips invisible items, this is an performance improvement
+					visible: opacity > 0
+					// If the scene is invisible, we disable it
+					enabled: visible
+
+					// Background
+					Rectangle {
+						anchors.fill: parent.gameWindowAnchorItem
+						color: "#47688e"
+					}
+				}
+			\endqml
+			
+			So what do we already see:
+			
+			\list
+				\li width/height is common since we normally want all scens to have the same size
+				\li opacity/visible/enabled all contribute to the behaviour we want when switching between scenes (details in comments)
+				\li We have a rectangle as background, spanning the whole scene. This would also be possible with an image
+			\endlist
+			
+		\section1 The Menu
 		
-	\chapter TODO
+			Now its time for the menu scene, which will not only be the place where we define the conditions for our simulation, but also the thing we see before and after a simulation. 
+			Add again a new scene int \e {scenes} folder and name it \underline {MenuScene.qml}.
+		
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				// The Menu Scene
+				SceneBase {
+					id: menuScene
+
+					// Headline with the name of the app
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						y: 30
+						font.pixelSize: 30
+						color: "#e9e9e9"
+						text: "The Game of Life"
+					}
+				}
+			\endqml
+			
+			Not yet much to see her but this will change soonish. First is to note that we do not use "Scene" for our type definition but instead our own defined type e\ {SceneBase} - which is important because else our base class would't make too much sense ;)
+			Also note that we did not have to add an additonal import to be able to use our own type - this is due to it being in the same folder as this file. We will later see how it looks like to import something.
+			Beside these things, we added a nice headline for our app, prominently spelling its name.
+			
+		\section1 The Game Scene
+			
+			The last scene we add is the one where our simulation will take place. Add it as before under \e {scenes} with the name \e {GameScene.qml}.
+			
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				// The Game Scene
+				SceneBase {
+					id: gameScene
+
+					property bool simulationRunning: false
+
+					sceneAlignmentY: "top"
+					sceneAlignmentX: "left"
+
+					// The entitiy  manager which will store all cells of our board
+					EntityManager {
+						 id: cellBoardEntityManager
+						 entityContainer: gameScene
+					}
+
+				}
+			\endqml
+			
+			Some new things here to mention. The bool property will be needed in the future to tell us if the simulation is still running. The EntitiyManager is not yet used but will be needed when we create our cells for the board.
+			
+		\section1 Bringing them together
+			
+			All basic scene versions are in place, so its time to put them to use. Also we can now define our \e {Main.qml} - which got auto created with new project.
+			
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				import "scenes"
+
+				GameWindow {
+					id: gameWindow
+
+					screenWidth: 960
+					screenHeight: 640
+
+					property int setupLivingCells: 2
+					property int setupSimulationSteps: 1
+					property int currentSimulationStep: 0
+
+					MenuScene {
+						id: menuScene
+					}
+
+					GameScene {
+						id: gameScene
+					}
+				}
+			\endqml
+			
+			First thing to note is the additional import, so we have access to our defined scenes. In preperation we also added three integer properties:
+			
+			\list
+				\li \e {setupLivingCells} represents the number of cells which got setup for the beginning of the simulation.
+				\li \e {setupSimulationSteps} represents the number of simulation steps we want to perform
+				\li \e {currentSimulationStep} is there to keep track of how many simulation steps we did.
+			\endlist
+			
+			And last but not least, we have the definitions for our newly created scenes.
+			
+	\chapter UI Elements
+		
+		
+		
 */

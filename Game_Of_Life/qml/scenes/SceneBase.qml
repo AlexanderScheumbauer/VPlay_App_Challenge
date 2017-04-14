@@ -5,6 +5,7 @@ import QtQuick 2.0
 
 Scene {
     id: sceneBase
+    // The "logical size" - the scene content is auto-scaled to match the GameWindow size
     width: 320
     height: 480
 
