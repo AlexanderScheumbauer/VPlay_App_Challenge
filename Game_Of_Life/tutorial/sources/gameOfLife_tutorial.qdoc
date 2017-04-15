@@ -280,14 +280,14 @@
 			
 			\qml
 			
-				    MenuScene {
-						id: menuScene
-						onStartSimulationPressed: doStartSimulationPressed();
-					}
+				MenuScene {
+					id: menuScene
+					onStartSimulationPressed: doStartSimulationPressed();
+				}
 					
-					    function doStartSimulationPressed() {
-							gameWindow.state = "game"
-						}
+				function doStartSimulationPressed() {
+					gameWindow.state = "game"
+				}
 			
 			\endqml
 			
@@ -313,25 +313,223 @@
 			
 			\qml
 			
-				    GameScene {
-						id: gameScene
-						onBackButtonPressed: doResetSimulation()
-					}
-					
-					    function doResetSimulation() {
-							gameWindow.state = "menu"
-							gameScene.simulationRunning = false
-							setupLivingCells = 2
-							setupSimulationSteps = 1
-							currentSimulationStep = 0
-						}
+				GameScene {
+					id: gameScene
+					onBackButtonPressed: doResetSimulation()
+				}
+				
+				function doResetSimulation() {
+					gameWindow.state = "menu"							gameScene.simulationRunning = false
+					setupLivingCells = 2
+					setupSimulationSteps = 1
+					currentSimulationStep = 0
+				}
 			
 			\endqml
 			
+			If you start the game now, you will see the menu and be able to switch to simulation and back. Great job!
+			
+			\table
+				\row
+					\image scene_switch_menu.png
+					\image scene_switch_game.png
+			\endtable
 			
 			
+	\chapter Changing and showing settings
+		
+		\section1 A label to show
+		
+			Its time get our fingers on the settings we want to change and display for the simulation. The button functionality for the changes exists - whats missing is a label to show the settings.
+			Therefore create a \e {MenuLabel.qml} in the \e {entities} folder with this content:
 			
+			\qml
+			
+				import QtQuick 2.0
+
+				Rectangle {
+					id: label
+
+					// the horizontal margin from the Text element to the Rectangle at both the left and the right side.
+					property int paddingHorizontal: 10
+					// the vertical margin from the Text element to the Rectangle at both the top and the bottom side.
+					property int paddingVertical: 5
+
+					// access the text of the Text component
+					property alias text: labelText.text
+					property alias textColor: labelText.color
+
+					// this will be the default size, it is the same size as the contained text + some padding
+					width: labelText.width + paddingHorizontal * 2
+					height: labelText.height + paddingVertical * 2
+
+					color: "#47688e"
+
+					// round edges
+					radius: 10
+
+					Text {
+						id: labelText
+						anchors.centerIn: parent
+						font.pixelSize: 18
+						color: "black"
+					}
+				}
+
+			\endqml
+		
+		\section1 A nice menu
+		
+			With the new type at hand, we can finalize our \e {MenuScene.qml} by adding all the signals, correspondings buttons and labels we need:
+			
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				import "../entities"
+
+				// The Menu Scene
+				SceneBase {
+					id: menuScene
+
+					// Signal indicating that the gameScene should be displayed and the simulation can start
+					signal startSimulationPressed
+					// Signals to trigger an in-/decrease of living cells at the begin of the simulation
+					signal increaseLivingCells
+					signal decreaseLivingCells
+					// Signals to trigger an in-/decrease of simulation steps to be performed
+					signal increaseSimulationSteps
+					signal decreaseSimulationSteps
+
+					// Headline with the name of the app
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						y: 30
+						font.pixelSize: 30
+						color: "#e9e9e9"
+						text: "The Game of Life"
+					}
+
+					// UI for setting up the simulation details
+					Column {
+						anchors.centerIn: parent
+						spacing: 10
+						MenuButton {
+							text: "Start Simulation"
+							onClicked: startSimulationPressed()
+						}
+
+						Row {
+							MenuButton {
+								text: "-"
+								onClicked: decreaseLivingCells()
+							}
+							MenuLabel {
+								text: setupLivingCells
+							}
+							MenuButton {
+								text: "+"
+								onClicked: increaseLivingCells()
+							}
+							MenuLabel {
+								text: "Define number of living cells"
+								color: "#47688e"
+							}
+						}
+						Row {
+							MenuButton {
+								text: "-"
+								onClicked: decreaseSimulationSteps()
+							}
+							MenuLabel {
+								text: setupSimulationSteps
+							}
+							MenuButton {
+								text: "+"
+								onClicked: increaseSimulationSteps()
+							}
+							MenuLabel {
+								text: "Define number of simulation steps"
+								color: "#47688e"
+							}
+						}
+					}
+				}
+
+			\endqml
+		
+			Each in-/decrease for cells and steps get a seperate signal and button. The labels got used to display the actual number and description of what happens.
+			We also make of \e {Column} & \e {Row} to neatly organize all this elements on the screen.
+			The next step is to create the handlers in \e {Main.qml}:
+			
+			\qml
+				MenuScene {
+					id: menuScene
+					onStartSimulationPressed: doStartSimulationPressed();
+					onIncreaseLivingCells: doIncreaseLivingCells();
+					onDecreaseLivingCells: doDecreaseLivingCells();
+					onIncreaseSimulationSteps: doIncreaseSimulationSteps();
+					onDecreaseSimulationSteps: doDecreaseSimulationSteps();
+				}
+				
+				function doIncreaseLivingCells() {
+					if (setupLivingCells < gameScene.getNumberOfCells())
+						++setupLivingCells;
+				}
+
+				function doDecreaseLivingCells() {
+					if (setupLivingCells > 0)
+						--setupLivingCells;
+				}
+
+				function doIncreaseSimulationSteps() {
+					++setupSimulationSteps;
+				}
+
+				function doDecreaseSimulationSteps() {
+					if (setupSimulationSteps > 1)
+						--setupSimulationSteps;
+				}
+			\endqml
+			
+			The functions needed some checks for boundaries - like it should not be possible to setup more cells than the board can actually host.
+			Starting the game now will present you with this beautiful menu:
+			
+			\image finished_menu.png
+			
+		\section1 UIs in the simulation
+		
+			Whats left regarding UIs, are the needed elements in the \e {GameScene.qml}:
+			
+			\qml
+			
+				// UI displaying infos about the current state
+				Column {
+					anchors.right: gameScene.gameWindowAnchorItem.right
+					anchors.rightMargin: 10
+					anchors.top: gameScene.gameWindowAnchorItem.top
+					anchors.topMargin: 10
+
+					Row {
+						MenuLabel {
+							text: "Current Simulation Round: " + currentSimulationStep
+							paddingVertical: 10
+						}
+					}
+					Row {
+						 MenuLabel {
+							 text: "Simulation finished!"
+							 visible: !simulationRunning
+							 textColor: "red"
+						 }
+					 }
+				}
+			
+			\endqml
+			
+			Here too the column/row elements are handy. We show the current simulation step (so the user can keep track)and when the simulation stopped, a text indicating the finished state.
+			
+			\image finished_game_menu.png
+		
 	\chapter TODO
-		
-		
 */
