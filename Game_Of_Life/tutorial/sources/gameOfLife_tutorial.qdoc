@@ -17,8 +17,8 @@
 		So lets talk briefly about the basic idea and facts of \e {Game of Life} (for more detailed infos, visit the link above).
 		
 		\list 1
-			\li We want to show a two-dimensional board, consisting of cells (one per position x/y)
-			\li A cell has a position on the board (x/y coordinate), has two possible states (dead or alive) and each state is displayed differently
+			\li We want to show a two-dimensional board, consisting of cells (one per position row\column)
+			\li A cell has a position on the board (row\column coordinate), has two possible states (dead or alive) and each state is displayed differently
 			\li A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)
 			\li The simulation happens in steps. Changes of cells happen only in between steps
 			\li We want to define how many steps we want to simulate
@@ -250,7 +250,6 @@
 			We need one button in the \e {menuScene} to switch to the \e {gameScene} and with it, a signal:
 			
 			\qml
-			
 				...
 
 				import "../entities"
@@ -273,13 +272,11 @@
 						}
 					}
 				}
-			
 			\endqml
 			
 			With this, we can extend our \e {menuScene} instance at \e {Main.qml}:
 			
 			\qml
-			
 				MenuScene {
 					id: menuScene
 					onStartSimulationPressed: doStartSimulationPressed();
@@ -288,7 +285,6 @@
 				function doStartSimulationPressed() {
 					gameWindow.state = "game"
 				}
-			
 			\endqml
 			
 			Be accessing the signal receiver, we can either do a single statement or call a function to do multiple things. \e {doStartSimulationPressed} will be extended in the future.
@@ -296,7 +292,6 @@
 			already per default existing one for back-buttons. Add this code to \e {GameScene.qml}:
 			
 			\qml
-			
 				// Back button to leave simulation
 				 MenuButton {
 					 anchors.right: gameScene.gameWindowAnchorItem.right
@@ -306,13 +301,11 @@
 					 text: "Abort Simulation"
 					 onClicked: backButtonPressed()
 				}
-			
 			\endqml
 			
 			And extend our \e {gameScene} instance in \e {Main.qml}:
 			
 			\qml
-			
 				GameScene {
 					id: gameScene
 					onBackButtonPressed: doResetSimulation()
@@ -324,7 +317,6 @@
 					setupSimulationSteps = 1
 					currentSimulationStep = 0
 				}
-			
 			\endqml
 			
 			If you start the game now, you will see the menu and be able to switch to simulation and back. Great job!
@@ -344,7 +336,6 @@
 			Therefore create a \e {MenuLabel.qml} in the \e {entities} folder with this content:
 			
 			\qml
-			
 				import QtQuick 2.0
 
 				Rectangle {
@@ -375,7 +366,6 @@
 						color: "black"
 					}
 				}
-
 			\endqml
 		
 		\section1 A nice menu
@@ -455,7 +445,6 @@
 						}
 					}
 				}
-
 			\endqml
 		
 			Each in-/decrease for cells and steps get a seperate signal and button. The labels got used to display the actual number and description of what happens.
@@ -502,7 +491,6 @@
 			Whats left regarding UIs, are the needed elements in the \e {GameScene.qml}:
 			
 			\qml
-			
 				// UI displaying infos about the current state
 				Column {
 					anchors.right: gameScene.gameWindowAnchorItem.right
@@ -524,12 +512,379 @@
 						 }
 					 }
 				}
-			
 			\endqml
 			
-			Here too the column/row elements are handy. We show the current simulation step (so the user can keep track)and when the simulation stopped, a text indicating the finished state.
+			Here too the column/row elements are handy. We show the current simulation step (so the user can keep track)and when the simulation stopped, a label indicating the finished state.
 			
 			\image finished_game_menu.png
 		
-	\chapter TODO
+	\chapter Its all about cells
+		
+		\section1 A single cell
+	
+			Congratulations! We sat up everything we need to be able to concentrate now on the core of our game - the cell simulation. Lets recap what we want from one of our cells:
+			
+			\list
+				\li It should be able to be marked as dead or alive
+				\li It needs to know its position on the board (by row/column number)
+				\li Depending on the dead/alive state, it should be displayed accordingly
+			\endlist
+			
+			With that knowledge we can add the new file \e {Cell.qml} to the \e {entities} folder:
+			
+			\qml
+				import VPlay 2.0
+				import QtQuick 2.0
+
+				EntityBase {
+					id: cell
+					entityType: "Cell"
+
+					property bool isAlive: false
+					property int row
+					property int column
+
+					Image {
+						id: cellImage
+						anchors.fill: parent
+						source: "../../assets/DeadCell.png"
+					}
+
+					function setIsAlive(isAliveFlag)
+					{
+						if (isAlive === isAliveFlag)
+							return
+
+						isAlive = isAliveFlag;
+
+						if (isAlive == true)
+							cellImage.source = "../../assets/LivingCell.png"
+						else
+							cellImage.source = "../../assets/DeadCell.png"
+					}
+				}
+			\endqml
+			
+			\table
+				\header
+					\li Living Cell
+					\li Dead Cell
+				\row
+					\li \inlineimage livingCell.png
+					\li \inlineimage deadCell.png
+			\endtable
+			
+			That was easy ;) The dead/alive state is realized with a bool property since it can have only two different states. \e {row, column} can be simple integer properties. An image will display the cell (strectching over the full size of it). And to be able to add some additional logic,
+			changing the \e {isAlive} property works through a function. Here we not only check if a change is needed (and by this skipping the rest if not), but also update the image source depending on the new value of \e {isAlive}.
+		
+		\section1 The Cellboard
+			
+			The cellboard is the place where the simulation starts (using the set up values from the menu), does its steps and will show the end result. Again, we should recap what our cellboard should be capable of:
+			
+			\list
+				\li It defines how many cells it can hold
+				\li It must signal when the simulation if finished and clear up the created cells
+				\li It must create all cells which are needed and define which of them will be marked \e {alive} at the beginning
+				\li It must do the simulation steps and through them, execute the rules which decide how the next verson of the board looks
+			\endlist
+			
+			That means quite some work, but lets start with the first two points.
+			
+			\section2 The Basic Layout
+			
+				Add a new file \e {CellBoard.qml} in the \e {entities} folder, with the following content:
+				
+				\qml
+					import VPlay 2.0
+					import QtQuick 2.0
+
+					Item {
+						id: cellBoard
+
+						// The board will always be square, so just one value needed (defines one dimension)
+						property int boardSize: 15
+						property double cellSize
+						property int columns: Math.floor(width / cellSize)
+						property int rows: Math.floor(height / cellSize)
+
+						// Arrays for handling the cells on the board
+						property var board: []      // The board which is displayed
+						property var nextBoard: []  // The where changes happen before they are applied to the display
+
+		
+						signal simulationOver
+
+						// Shall be a multiple of the cellSize
+						width: cellSize * boardSize
+						height: cellSize * boardSize
+
+						// Calculate cell index
+						function index(row, column) {
+							return row * columns + column
+						}
+					}
+				\endqml
+				
+				We want a square board, so we need just one value which defines how many cells a row/column will have. \e {cellSize} needs to be defined by the one who creates an instance of this item. 
+				You may wonder why we have two arrays withe "board" in their names. The simulation works (as already mentioned) in steps. A single step means a complete reculculation of the whole board 
+				by using the given ruleset. This requires a current version (\e {board}) and a second one (e\ {nextBoard}), where changes are applied. After all calculations are finished, the current version is unchanged while 
+				the other is the updated one. Since \e {board} is the one we use to display the cells, \e {nextBoard} is copied over it and therefore the display updated. We will see the code for this just in minute ;)
+				
+				You may again wonder, why our arrays are just one-dimensional - isn't the board to be supposed two-dimensional? A good point but don't worry , there is very neat solution in usage - 
+				when can store the cells in an one-dimensional array (which is easier) and still use it two-dimensional. Adressing cells in the array works just as you would expect by their position 
+				composed of row/column. Its just that you have to use the \e {index()} function to get the correct index for your coordinates - the calculation in there provides you with whats needed.
+			
+			\section2 Cell creation
+			
+				Its about time to create some cells for our board. Extend \e {CellBoard.qml} with the following code:
+				
+				
+				\qml
+					// Fill board with cells
+					function initializeBoard(numberOfLivingCells) {
+						clearBoard();
+
+						// Fill board
+						for(var y = 0; y < rows; y++)
+						{
+							for(var x = 0; x < columns ; x++)
+							{
+								board[index(y, x)] = createCell(y, x);
+							}
+						}
+
+						// Randomly define which fields should be alive
+						for (var i = 0; i < numberOfLivingCells; ++i)
+						{
+							board[getRandomDeadCellIndex()].setIsAlive(true);
+						}
+						// Handover the newly created board so both ones are identical for the start
+						nextBoard = board
+					}
+
+					// Returns a random dead cell index
+					function getRandomDeadCellIndex()
+					{
+						var randomDeadCellIndex;
+						// Iterate until a random dead cell got found
+						do
+						{
+							randomDeadCellIndex = getRandomInt(0, board.length);
+						} while(board[randomDeadCellIndex].isAlilve === true)
+
+						return randomDeadCellIndex;
+					}
+
+					// Returns random number between "min" (inclusive) and max (exclusive)
+					function getRandomInt(min, max) {
+						min = Math.ceil(min);
+						max = Math.floor(max);
+						return Math.floor(Math.random() * (max - min)) + min;
+					}
+
+					// Clear the board
+					function clearBoard() {
+						for(var i = 0; i < board.length; i++)   // Remove entities
+						{
+							var cell = board[i]
+							if(cell !== null)
+								cellBoardEntityManager.removeEntityById(nextBoardCell.entityId)
+
+							var nextBoardCell = nextBoard[i]
+							if (nextBoardCell !== null)
+								cellBoardEntityManager.removeEntityById(nextBoardCell.entityId)
+						}
+
+						board = []
+						nextBoard = []
+					}
+
+					// Create a new cell at specific position
+					function createCell(row, column) {
+						// Configure cell
+						var entityProperties = {
+							width: cellSize,
+							height: cellSize,
+							x: column * cellSize,
+							y: row * cellSize,
+							isAlive: false,
+							row: row,
+							column: column
+						}
+
+						// Create a new entitiy with our properties and return it
+						var id = cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl("Cell.qml"), entityProperties)
+						return cellBoardEntityManager.getEntityById(id)
+					}
+				\endqml
+				
+				Lets go over it function by function:
+				
+				\list
+					\li \e {initializeBoard()} takes the number of cells that should be alive at start. After a cleaning, the whole board is iterated over and for each entry a cell is created.
+						Afterwards the cells to be alive are decided per random position and both boards are aligned.
+					\li \e {getRandomCellIndex()} & \e {getRandomInt()} are responsible for finding valild cells to be made alive.
+					\li \e {clearBoard} removes the cell entities via the EntitiyManager and sets both boards to empty.
+					\li \e {createCell} is responsible to create a single cell via the EntitiyManager and returns the EntitiyId for further use.
+				\endlist
+				
+			\section2 The simulation
+				
+				Cells are created and in their place, so its time to simulate them away! Add the following code to \e {CellBoard.qml} and we will go through it:
+				
+				\qml
+					// Works through a single full simulation step with all cell changes
+					function doSimulationStep() {
+						// Iterate over all cells to recalculate them
+						for(var y = 0; y < rows; y++)
+						{
+							for(var x = 0; x < columns; x++)
+							{
+								calculateCell(y, x, getCellNeighbours(y, x))
+							}
+						}
+
+						// Update the the displayed version
+						board = nextBoard
+
+						// The current simulation round is over so we increase to the next
+						++currentSimulationStep
+
+						// If we went through the desired number of simulationsteps, we stop
+						if (currentSimulationStep == setupSimulationSteps)
+							simulationRunning = false
+					}
+
+					// Returns an array with all neighbours for the cell on the given coordinates
+					function getCellNeighbours(row, column)
+					{
+						var neighbourCells = []
+						// Precalculate the different possiblites of where the given cell is located
+						var isLeftUpperCorner = (column === leftBorder && row === upperBorder)
+						var isRightUpperCorner = (column === rightBorder && row === upperBorder)
+						var isLeftLowerCorner = (column === leftBorder && row === lowerBorder)
+						var isRightLowerCorner = (column === rightBorder && row === lowerBorder)
+						var isLeftBorder = column === leftBorder
+						var isRightBorder = column === rightBorder
+						var isUpperBorder = row === upperBorder
+						var isLowerBorder = row === lowerBorder
+
+						// Handle each case and depending on it, store the neighbouring cells
+						if (isLeftUpperCorner) {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[2] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+						}
+						else if (isRightUpperCorner) {
+							neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[2] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+						}
+						else if (isLeftLowerCorner) {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[2] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+						}
+						else if (isRightLowerCorner) {
+							neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[2] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+						}
+						else if (isLeftBorder) {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+							neighbourCells[4] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+						}
+						else if (isRightBorder) {
+							neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[3] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+							neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+						}
+						else if (isUpperBorder) {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+							neighbourCells[4] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+
+						}
+						else if (isLowerBorder) {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[3] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+							neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+						}
+						else {
+							neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+							neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+							neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+							neighbourCells[3] = board[index(row - 1, column)]          // Upper Neighbour
+							neighbourCells[4] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+							neighbourCells[5] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+							neighbourCells[6] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+							neighbourCells[7] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+						}
+
+						return neighbourCells
+					}
+
+					// Performs the actual change of cell, depending on its neighbours
+					function calculateCell(row, column, cellNeighbours)
+					{
+						var livingNeighbours = 0
+						for (var i = 0; i < cellNeighbours.length; ++i)
+						{
+							if (cellNeighbours[i].isAlive === true)
+								++livingNeighbours
+						}
+
+						if (nextBoard[index(row, column)].isAlive === true)
+							calculateLivingCell(livingNeighbours, row, column)
+						else
+							calculateDeadCell(livingNeighbours, row, column)
+					}
+
+					// Performs the changes for a living cell
+					function calculateLivingCell(livingNeighbours, row, column)
+					{
+						if (livingNeighbours <= 1)
+						{
+							// Cell dies due to solitude
+							nextBoard[index(row, column)].setIsAlive(false)
+						}
+						else if (livingNeighbours >= 4)
+						{
+							// Cell dies due to overpopulation
+							nextBoard[index(row, column)].setIsAlive(false)
+						}
+					}
+
+					// Performs the changes for a dead cell
+					function calculateDeadCell(livingNeighbours, row, column)
+					{
+						if (livingNeighbours === 3)
+						{
+							// Cell comes to live due to the correct environment
+							nextBoard[index(row, column)].setIsAlive(true)
+						}
+					}
+				\endqml
+				
+				Uff thats quite some piece of code. But don't be frightened - this is mostly due to easy understable code. ;)
+				
+				\list
+					\li \e {doSimulationStep()} 
+					\li \e {getCellNeighbours()} 
+					\li \e {calculateCell()}
+					\li \e {calculateLivingCell()} & \e {calculateDeadCell()} 
+				\endlist
+				
+	
+	\chapter Using the CellBoard
+		
 */

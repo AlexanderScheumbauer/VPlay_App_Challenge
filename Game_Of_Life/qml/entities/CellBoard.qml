@@ -79,7 +79,7 @@ Item {
         {
             var cell = board[i]
             if(cell !== null)
-
+                cellBoardEntityManager.removeEntityById(cell.entityId)
 
             var nextBoardCell = nextBoard[i]
             if (nextBoardCell !== null)
