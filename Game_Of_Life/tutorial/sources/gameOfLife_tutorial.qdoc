@@ -202,7 +202,7 @@
 			
 		\section1 One Button to rule them all
 			
-			Now that the functionality to switch scenes is in place, we need UI elements to trigger them. Since we will several buttons (not only for switching), we should create a reusable one. Add a \e {MenuButton.qml} file to the \e {entities} folder, with the following content:
+			Now that the functionality to switch scenes is in place, we need UI elements to trigger them. Since we will need several buttons (not only for switching), we should create a reusable one. Add a \e {MenuButton.qml} file to the \e {entities} folder, with the following content:
 			
 			\qml
 				import QtQuick 2.0
@@ -246,6 +246,88 @@
 					}
 				}
 			\endqml
+			
+			We need one button in the \e {menuScene} to switch to the \e {gameScene} and with it, a signal:
+			
+			\qml
+			
+				...
+
+				import "../entities"
+
+				SceneBase {
+					id: menuScene
+
+					// Signal indicating that the gameScene should be displayed and the simulation can start
+					signal startSimulationPressed
+					
+					...
+					
+					// UI for setting up the simulation details
+					Column {
+						anchors.centerIn: parent
+						spacing: 10
+						MenuButton {
+							text: "Start Simulation"
+							onClicked: startSimulationPressed()
+						}
+					}
+				}
+			
+			\endqml
+			
+			With this, we can extend our \e {menuScene} instance at \e {Main.qml}:
+			
+			\qml
+			
+				    MenuScene {
+						id: menuScene
+						onStartSimulationPressed: doStartSimulationPressed();
+					}
+					
+					    function doStartSimulationPressed() {
+							gameWindow.state = "game"
+						}
+			
+			\endqml
+			
+			Be accessing the signal receiver, we can either do a single statement or call a function to do multiple things. \e {doStartSimulationPressed} will be extended in the future.
+			If you run the game now, switching from menu to simulation is possible but we still need to provide a way to go the other way round. But instead of adding a new signal to \e {gameScene}, we will make use of the
+			already per default existing one for back-buttons. Add this code to \e {GameScene.qml}:
+			
+			\qml
+			
+				// Back button to leave simulation
+				 MenuButton {
+					 anchors.right: gameScene.gameWindowAnchorItem.right
+					 anchors.rightMargin: 10
+					 anchors.bottom: gameScene.gameWindowAnchorItem.bottom
+					 anchors.bottomMargin: 10
+					 text: "Abort Simulation"
+					 onClicked: backButtonPressed()
+				}
+			
+			\endqml
+			
+			And extend our \e {gameScene} instance in \e {Main.qml}:
+			
+			\qml
+			
+				    GameScene {
+						id: gameScene
+						onBackButtonPressed: doResetSimulation()
+					}
+					
+					    function doResetSimulation() {
+							gameWindow.state = "menu"
+							gameScene.simulationRunning = false
+							setupLivingCells = 2
+							setupSimulationSteps = 1
+							currentSimulationStep = 0
+						}
+			
+			\endqml
+			
 			
 			
 			

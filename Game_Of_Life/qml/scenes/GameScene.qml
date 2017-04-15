@@ -59,7 +59,7 @@ SceneBase {
          }
     }
 
-    // back button to leave scene
+    // Back button to leave simulation
      MenuButton {
          anchors.right: gameScene.gameWindowAnchorItem.right
          anchors.rightMargin: 10
