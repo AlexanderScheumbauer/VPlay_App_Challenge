@@ -27,7 +27,7 @@
 		
 		This already tells us that there are some settings to be adjusted before the actual simulation can start. Therefore it makes sense to start with how we want to split up the game buy using multiple scens.
 	
-	\chapter Multiple scenes
+	\chapter Multiple Scenes Setup
 	
 		\section1 The Base
 		
@@ -164,10 +164,92 @@
 				\li \e {currentSimulationStep} is there to keep track of how many simulation steps we did.
 			\endlist
 			
-			And last but not least, we have the definitions for our newly created scenes.
+			And last but not least, we have the definitions for our newly created scenes. 
 			
-	\chapter UI Elements
-		
+		\section1 Controlling visibility
+			
+			So our scenes are in place but as for now, there is no activity possible. We want to switch between the scenes and for this we need the functionality itself and something to trigger it. 
+			For the functionality, we already added some properties to the \e {SceneBase}, which we will put to use now. Add the following to your \e {Main.qml}:
+			
+			\qml
+				...
+				
+				GameWindow {
+					...
+					
+					// Default state is menu -> Default scene is menuScene
+					state: "menu"
+					activeScene: menuScene
+
+					// State machine, takes care of reversing the PropertyChanges when changing the state
+					states: [
+						State {
+							name: "menu"
+							PropertyChanges {target: menuScene; opacity: 1}
+							PropertyChanges {target: gameWindow; activeScene: menuScene}
+						},
+						State {
+							name: "game"
+							PropertyChanges {target: gameScene; opacity: 1}
+							PropertyChanges {target: gameWindow; activeScene: gameScene}
+						}
+					]
+				}
+			\endqml
+			
+			The solution is to use StateMachine. The GameWindow has the property \e {state} which we set to \e {menu} because the menuScene is the place where we want to start. The following code defines what should happen on the specific state changes. It will be browsed through and do what is set up.
+			This is on one hand, to change the opacity of the scene where we wanna go (which through the set up properties also implicitly changes \e {visible} and \e {enabled}). On the other hand we change the \e {activeScene} property to the one we want.
+			
+		\section1 One Button to rule them all
+			
+			Now that the functionality to switch scenes is in place, we need UI elements to trigger them. Since we will several buttons (not only for switching), we should create a reusable one. Add a \e {MenuButton.qml} file to the \e {entities} folder, with the following content:
+			
+			\qml
+				import QtQuick 2.0
+
+				Rectangle {
+					id: button
+
+					// The horizontal margin from the Text element to the Rectangle at both the left and the right side
+					property int paddingHorizontal: 10
+					// The vertical margin from the Text element to the Rectangle at both the top and the bottom side
+					property int paddingVertical: 5
+					// access the text of the Text component
+					property alias text: buttonText.text
+
+					// this handler is called when the button is clicked.
+					signal clicked
+
+					// This will be the default size, it is same size as the contained text + some padding
+					width: buttonText.width + paddingHorizontal * 2
+					height: buttonText.height + paddingVertical * 2
+
+					color: "#e9e9e9"
+
+					// round edges
+					radius: 10
+
+					Text {
+						id: buttonText
+						anchors.centerIn: parent
+						font.pixelSize: 18
+						color: "black"
+					}
+
+					MouseArea {
+						id: mouseArea
+						anchors.fill: parent
+						hoverEnabled: true
+						onClicked: button.clicked()
+						onPressed: button.opacity = 0.5
+						onReleased: button.opacity = 1
+					}
+				}
+			\endqml
+			
+			
+			
+	\chapter TODO
 		
 		
 */

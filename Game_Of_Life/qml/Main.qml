@@ -27,11 +27,11 @@ GameWindow {
         onBackButtonPressed: doResetSimulation()
     }
 
-    // default state is menu -> default scene is menuScene
+    // Default state is menu -> Default scene is menuScene
     state: "menu"
     activeScene: menuScene
 
-    // state machine, takes care of reversing the PropertyChanges when changing the state
+    // State machine, takes care of reversing the PropertyChanges when changing the state
     states: [
         State {
             name: "menu"
