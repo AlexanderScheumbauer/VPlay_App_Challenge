@@ -875,16 +875,66 @@
 					}
 				\endqml
 				
-				Uff thats quite some piece of code. But don't be frightened - this is mostly due to easy understable code. ;)
+				Uff thats quite some piece of code. But don't be frightened - its not too complicated. ;)
+				
+				The basic idea is to iterate over all cells on the board. For each cell, we gather its neighbours. The important point about the this gathering is, that handle the board strict and not continious. A strict board means (like in our case) that the board ends at the border. E.g. the cell at
+				(0,0) has only three neighbours because its in the left upper corner. Sounds logical enough right? However there would have been the alternative to allow always the full number of neighbours (eight) - by acting as the same board would repeat itself at the border. But enough about since we choose
+				strict version.
+				
+				With the gathered cell neighbours (imporant - from \e {board}!), we now have to check how many of them are alive and if our current cell is alive or not. With this knowledge we can apply the ruleset for a cell:
 				
 				\list
-					\li \e {doSimulationStep()} 
-					\li \e {getCellNeighbours()} 
-					\li \e {calculateCell()}
-					\li \e {calculateLivingCell()} & \e {calculateDeadCell()} 
+					\li A dead cell becomes alive if it has exactly three neighbours which are also alive
+					\li A living cell dies of solitude if it only one or less living neighbours
+					\li A living cell dies of overpopulation if it has four or more living neighbours
 				\endlist
+				
+				With this ruleset we change the state of cell if necessary. And important - we do that in \e {nextboard}. Afterwards we align both boards toi update the display, increase the simulation step and check if we reached the end.
 				
 	
 	\chapter Using the CellBoard
 		
+		We are nearly done, only two things left. Hurray =) 
+		First we go to \e {GameScene.qml} and add this:
+		
+		\qml
+			// The cellboard which will perform filling, clearing and calculation of the cells
+			CellBoard {
+				id: cellBoard
+				anchors.horizontalCenter: gameScene.horizontalCenter
+				cellSize: 30
+				y: 20
+			}
+
+			// Start game
+			function startGame(numberOfLivingCells) {
+				cellBoard.initializeBoard(numberOfLivingCells);
+				simulationRunning = true
+			}
+				
+			// The timer which triggers and and controls the speed of the simulation
+			Timer {
+				id: simulationTimer
+				running: simulationRunning
+				interval: 1000 // milliseconds
+				repeat: true
+				onTriggered: cellBoard.doSimulationStep()
+			}
+		\endqml
+		
+		We of course had to add an instance of our cellboard and define the details. \e {startGame()} got externded to trigger the initialization of the board and its cells. And last but not least there is a timer. It is needed so control and allow discrete steps for our simulation. It will trigger
+		\e {doSimulationStep()} repeatedly as long as \e {simulationRunning} is true - meaning until a simulation did all its steps are gets aborted.
+		
+		The very last thing to change is the triggering of the whole functionality in \e {Main.qml}:
+		
+		\qml
+			function doStartSimulationPressed() {
+				gameWindow.state = "game"
+				gameScene.startGame(setupLivingCells);
+			}
+		\endqml
+		
+		So thats about it. You are now able to start the game and watch the little cells in their game of life ;)
+		
+		\image finished.png
 */
