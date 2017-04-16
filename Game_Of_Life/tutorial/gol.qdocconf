@@ -7,11 +7,6 @@ outputdir = ./html
 
 sourcedirs = ./sources
 
-# The exampledirs variable specifies the directories containing
-# the source code of the example files.
-
-exampledirs = ./examples
-
 # The imagedirs variable specifies the
 # directories containing the images used in the documentation.
 

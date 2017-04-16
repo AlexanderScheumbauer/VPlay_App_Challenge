@@ -8,24 +8,24 @@
 	\chapter Introduction
 	
 		This tutorial is about the famous cellular automaton by John Conway - referred to as  \l {https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life}{Conway's Game of Life}.
-		It will concentrate on implementing a basic version of this simulation but will also partly cover topics like \e {"multiple scenes"}, \e {organizing UI elements on the screen} and \e {entitiy communication}.
+		It will concentrate on implementing a basic version of this simulation but will also partly cover topics like \e {"multiple scenes"}, \e {organizing UI elements on the screen} and \e {entity communication}.
 		
-		\chapter New Project & the Basics
+		\section1 New Project & the Basics
 		
-		Create a new Empty V-Play Project with the name \b {Game_Of_Life}. Inside the qml directory of your project, create the following new folders: \b {entities} & \b {scenes} (which we will need later).
-		
-		So lets talk briefly about the basic idea and facts of \e {Game of Life} (for more detailed infos, visit the link above).
-		
-		\list 1
-			\li We want to show a two-dimensional board, consisting of cells (one per position row\column)
-			\li A cell has a position on the board (row\column coordinate), has two possible states (dead or alive) and each state is displayed differently
-			\li A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)
-			\li The simulation happens in steps. Changes of cells happen only in between steps
-			\li We want to define how many steps we want to simulate
-			\li The board needs an initial setup of living/dead cells
-		\endlist
-		
-		This already tells us that there are some settings to be adjusted before the actual simulation can start. Therefore it makes sense to start with how we want to split up the game buy using multiple scens.
+			Create a new empty V-Play project with the name \b {Game_Of_Life}. Inside the qml directory of your project, create the following new folders: \b {entities} & \b {scenes} (which we will need later).
+			
+			So lets talk briefly about the basic idea and facts of \e {Game of Life} (for more detailed info, visit the link above).
+			
+			\list 1
+				\li We want to show a two-dimensional board, consisting of cells (one per position row\column)
+				\li A cell has a position on the board (row\column coordinate), has two possible states (dead or alive) and each state is displayed differently
+				\li A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)
+				\li The simulation happens in steps. Changes of cells happen only in between steps
+				\li We want to define how many steps we want to simulate
+				\li The board needs an initial setup of living/dead cells
+			\endlist
+			
+			This already tells us that there are some settings to be adjusted before the actual simulation can start. Therefore it makes sense to start with how we want to split up the game buy using multiple scenes.
 	
 	\chapter Multiple Scenes Setup
 	
@@ -34,7 +34,7 @@
 			When having multiple versions of the same type, it is always a good idea to think about characteristics they all have in common. If there are enough, its worth creating a common base version.
 			In our case we want to have two different scenes. One as the menu where we can define all the different settings for our simulation and a second one for the simulation itself.
 			
-			Lets start by adding a new scene under the \e {scenes} folder - namely \underline {SceneBase.qml}.
+			Lets start by adding a new scene under the \e {scenes} folder - namely \e {SceneBase.qml}.
 			
 			\qml
 				import VPlay 2.0
@@ -65,15 +65,15 @@
 			So what do we already see:
 			
 			\list
-				\li width/height is common since we normally want all scens to have the same size
-				\li opacity/visible/enabled all contribute to the behaviour we want when switching between scenes (details in comments)
+				\li \e {width/height} is common since we normally want all scenes to have the same size
+				\li \e {opacity/visible/enabled} all contribute to the behavior we want when switching between scenes (details in comments)
 				\li We have a rectangle as background, spanning the whole scene. This would also be possible with an image
 			\endlist
 			
 		\section1 The Menu
 		
 			Now its time for the menu scene, which will not only be the place where we define the conditions for our simulation, but also the thing we see before and after a simulation. 
-			Add again a new scene int \e {scenes} folder and name it \underline {MenuScene.qml}.
+			Add again a new scene in the \e {scenes} folder and name it \e {MenuScene.qml}.
 		
 			\qml
 				import VPlay 2.0
@@ -94,8 +94,8 @@
 				}
 			\endqml
 			
-			Not yet much to see her but this will change soonish. First is to note that we do not use "Scene" for our type definition but instead our own defined type e\ {SceneBase} - which is important because else our base class would't make too much sense ;)
-			Also note that we did not have to add an additonal import to be able to use our own type - this is due to it being in the same folder as this file. We will later see how it looks like to import something.
+			Not yet much to see her but this will change soonish. First thing to note is that we do not use "Scene" for our type definition but instead our own defined type e\ {SceneBase} - which is important because else our base class would't make too much sense ;)
+			Also note that we did not have to add an additional import to be able to use our own type - this is due to it being in the same folder as this file. We will later see how it looks like to import something.
 			Beside these things, we added a nice headline for our app, prominently spelling its name.
 			
 		\section1 The Game Scene
@@ -159,9 +159,9 @@
 			First thing to note is the additional import, so we have access to our defined scenes. In preperation we also added three integer properties:
 			
 			\list
-				\li \e {setupLivingCells} represents the number of cells which got setup for the beginning of the simulation.
+				\li \e {setupLivingCells} represents the number of cells which got setup for the beginning of the simulation
 				\li \e {setupSimulationSteps} represents the number of simulation steps we want to perform
-				\li \e {currentSimulationStep} is there to keep track of how many simulation steps we did.
+				\li \e {currentSimulationStep} is there to keep track of how many simulation steps we did
 			\endlist
 			
 			And last but not least, we have the definitions for our newly created scenes. 
@@ -197,7 +197,7 @@
 				}
 			\endqml
 			
-			The solution is to use StateMachine. The GameWindow has the property \e {state} which we set to \e {menu} because the menuScene is the place where we want to start. The following code defines what should happen on the specific state changes. It will be browsed through and do what is set up.
+			The solution is to use a StateMachine. The GameWindow has the property \e {state} which we set to \e {menu} because the menu scene is the place where we want to start. The above code defines what should happen on the specific state changes. It will be browsed through and do what is set up.
 			This is on one hand, to change the opacity of the scene where we wanna go (which through the set up properties also implicitly changes \e {visible} and \e {enabled}). On the other hand we change the \e {activeScene} property to the one we want.
 			
 		\section1 One Button to rule them all
@@ -312,7 +312,8 @@
 				}
 				
 				function doResetSimulation() {
-					gameWindow.state = "menu"							gameScene.simulationRunning = false
+					gameWindow.state = "menu"
+					gameScene.simulationRunning = false
 					setupLivingCells = 2
 					setupSimulationSteps = 1
 					currentSimulationStep = 0
@@ -447,9 +448,8 @@
 				}
 			\endqml
 		
-			Each in-/decrease for cells and steps get a seperate signal and button. The labels got used to display the actual number and description of what happens.
-			We also make of \e {Column} & \e {Row} to neatly organize all this elements on the screen.
-			The next step is to create the handlers in \e {Main.qml}:
+			Each in-/decrease for cells and steps get a separate signal and button. The labels are used to display the actual number and description of what happens.
+			We also make of \e {Column} & \e {Row} to neatly organize all this elements on the screen. The next step is to create the handlers in \e {Main.qml}:
 			
 			\qml
 				MenuScene {
@@ -574,7 +574,7 @@
 					\li \inlineimage deadCell.png
 			\endtable
 			
-			That was easy ;) The dead/alive state is realized with a bool property since it can have only two different states. \e {row, column} can be simple integer properties. An image will display the cell (strectching over the full size of it). And to be able to add some additional logic,
+			That was easy ;) The dead/alive state is realized with a bool property since it can have only two different states. \e {row, column} can be simple integer properties. An image will display the cell (stretching over the full size of it). And to be able to add some additional logic,
 			changing the \e {isAlive} property works through a function. Here we not only check if a change is needed (and by this skipping the rest if not), but also update the image source depending on the new value of \e {isAlive}.
 		
 		\section1 The Cellboard
@@ -585,7 +585,7 @@
 				\li It defines how many cells it can hold
 				\li It must signal when the simulation if finished and clear up the created cells
 				\li It must create all cells which are needed and define which of them will be marked \e {alive} at the beginning
-				\li It must do the simulation steps and through them, execute the rules which decide how the next verson of the board looks
+				\li It must do the simulation steps and through them, execute the rules which decide how the next version of the board looks
 			\endlist
 			
 			That means quite some work, but lets start with the first two points.
@@ -626,7 +626,7 @@
 				\endqml
 				
 				We want a square board, so we need just one value which defines how many cells a row/column will have. \e {cellSize} needs to be defined by the one who creates an instance of this item. 
-				You may wonder why we have two arrays withe "board" in their names. The simulation works (as already mentioned) in steps. A single step means a complete reculculation of the whole board 
+				You may wonder why we have two arrays withe "board" in their names. The simulation works (as already mentioned) in steps. A single step means a complete recalculation of the whole board 
 				by using the given ruleset. This requires a current version (\e {board}) and a second one (e\ {nextBoard}), where changes are applied. After all calculations are finished, the current version is unchanged while 
 				the other is the updated one. Since \e {board} is the one we use to display the cells, \e {nextBoard} is copied over it and therefore the display updated. We will see the code for this just in minute ;)
 				
@@ -877,11 +877,11 @@
 				
 				Uff thats quite some piece of code. But don't be frightened - its not too complicated. ;)
 				
-				The basic idea is to iterate over all cells on the board. For each cell, we gather its neighbours. The important point about the this gathering is, that handle the board strict and not continious. A strict board means (like in our case) that the board ends at the border. E.g. the cell at
+				The basic idea is to iterate over all cells on the board. For each cell, we gather its neighbours. The important point about the this gathering is, that handle the board strict and not continous. A strict board means (like in our case) that the board ends at the border. E.g. the cell at
 				(0,0) has only three neighbours because its in the left upper corner. Sounds logical enough right? However there would have been the alternative to allow always the full number of neighbours (eight) - by acting as the same board would repeat itself at the border. But enough about since we choose
 				strict version.
 				
-				With the gathered cell neighbours (imporant - from \e {board}!), we now have to check how many of them are alive and if our current cell is alive or not. With this knowledge we can apply the ruleset for a cell:
+				With the gathered cell neighbours (important - from \e {board}!), we now have to check how many of them are alive and if our current cell is alive or not. With this knowledge we can apply the ruleset for a cell:
 				
 				\list
 					\li A dead cell becomes alive if it has exactly three neighbours which are also alive
