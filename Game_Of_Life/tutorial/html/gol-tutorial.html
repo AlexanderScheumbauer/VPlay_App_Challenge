@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- gameOfLife_tutorial.qdoc -->
+  <title>Game of Life Tutorial | Qt </title>
+</head>
+<body>
+<li>Game of Life Tutorial</li>
+<div class="sidebar">
+<div class="toc">
+<h3><a name="toc">Contents</a></h3>
+<ul>
+<li class="level1"><a href="#introduction">Introduction</a></li>
+<li class="level1"><a href="#new-project-the-basics">New Project &amp; the Basics</a></li>
+<li class="level1"><a href="#multiple-scenes-setup">Multiple Scenes Setup</a></li>
+<li class="level1"><a href="#the-base">The Base</a></li>
+<li class="level1"><a href="#the-menu">The Menu</a></li>
+<li class="level1"><a href="#the-game-scene">The Game Scene</a></li>
+<li class="level1"><a href="#bringing-them-together">Bringing them together</a></li>
+<li class="level1"><a href="#controlling-visibility">Controlling visibility</a></li>
+<li class="level1"><a href="#one-button-to-rule-them-all">One Button to rule them all</a></li>
+<li class="level1"><a href="#changing-and-showing-settings">Changing and showing settings</a></li>
+<li class="level1"><a href="#a-label-to-show">A label to show</a></li>
+<li class="level1"><a href="#a-nice-menu">A nice menu</a></li>
+<li class="level1"><a href="#uis-in-the-simulation">UIs in the simulation</a></li>
+<li class="level1"><a href="#its-all-about-cells">Its all about cells</a></li>
+<li class="level1"><a href="#a-single-cell">A single cell</a></li>
+<li class="level1"><a href="#the-cellboard">The Cellboard</a></li>
+<li class="level2"><a href="#the-basic-layout">The Basic Layout</a></li>
+<li class="level2"><a href="#cell-creation">Cell creation</a></li>
+<li class="level2"><a href="#the-simulation">The simulation</a></li>
+<li class="level1"><a href="#using-the-cellboard">Using the CellBoard</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<h1 class="title">Game of Life Tutorial</h1>
+<span class="subtitle"></span>
+<!-- $$$gol-tutorial.html-description -->
+<div class="descr"> <a name="details"></a>
+<p class="centerAlign"><img src="images/intro_picture.png" alt="" /></p><a name="introduction"></a>
+<h2 id="introduction">Introduction</h2>
+<p>This tutorial is about the famous cellular automaton by John Conway - referred to as <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life</a>. It will concentrate on implementing a basic version of this simulation but will also partly cover topics like <i>&quot;multiple scenes&quot;</i>, <i>organizing UI elements on the screen</i> and <i>entity communication</i>.</p>
+<a name="new-project-the-basics"></a>
+<h2 id="new-project-the-basics">New Project &amp; the Basics</h2>
+<p>Create a new empty V-Play project with the name <b>Game_Of_Life</b>. Inside the qml directory of your project, create the following new folders: <b>entities</b> &amp; <b>scenes</b> (which we will need later).</p>
+<p>So lets talk briefly about the basic idea and facts of <i>Game of Life</i> (for more detailed info, visit the link above).</p>
+<ol class="1" type="1"><li>We want to show a two-dimensional board, consisting of cells (one per position row &amp; column pair)</li>
+<li>A cell has a position on the board (row column coordinate), has two possible states (dead or alive) and each state is displayed differently</li>
+<li>A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)</li>
+<li>The simulation happens in steps. Changes of cells happen only in between steps</li>
+<li>We want to define how many steps we want to simulate</li>
+<li>The board needs an initial setup of living/dead cells</li>
+</ol>
+<p>This already tells us that there are some settings to be adjusted before the actual simulation can start. Therefore it makes sense to start with how we want to split up the game buy using multiple scenes.</p>
+<a name="multiple-scenes-setup"></a>
+<h2 id="multiple-scenes-setup">Multiple Scenes Setup</h2>
+<a name="the-base"></a>
+<h2 id="the-base">The Base</h2>
+<p>When having multiple versions of the same type, it is always a good idea to think about characteristics they all have in common. If there are enough, its worth creating a common base version. In our case we want to have two different scenes. One as the menu where we can define all the different settings for our simulation and a second one for the simulation itself.</p>
+<p>Lets start by adding a new scene under the <i>scenes</i> folder - namely <i>SceneBase.qml</i>.</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+<span class="comment">// The base for our scenes</span>
+<span class="type">Scene</span> {
+        <span class="name">id</span>: <span class="name">sceneBase</span>
+        <span class="comment">// The &quot;logical size&quot; - the scene content is auto-scaled to match the GameWindow size</span>
+        <span class="name">width</span>: <span class="number">320</span>
+        <span class="name">height</span>: <span class="number">480</span>
+
+        <span class="comment">// By default, set the opacity to 0 - this will be changed from the Main.qml with PropertyChanges</span>
+        <span class="name">opacity</span>: <span class="number">0</span>
+        <span class="comment">// We set the visible property to false if opacity is 0 because the renderer skips invisible items, this is an performance improvement</span>
+        <span class="name">visible</span>: <span class="name">opacity</span> <span class="operator">&gt;</span> <span class="number">0</span>
+        <span class="comment">// If the scene is invisible, we disable it</span>
+        <span class="name">enabled</span>: <span class="name">visible</span>
+
+        <span class="comment">// Background</span>
+        <span class="type">Rectangle</span> {
+                <span class="name">anchors</span>.fill: <span class="name">parent</span>.<span class="name">gameWindowAnchorItem</span>
+                <span class="name">color</span>: <span class="string">&quot;#47688e&quot;</span>
+        }
+}</pre>
+<p>So what do we already see:</p>
+<ul>
+<li><i>width/height</i> is common since we normally want all scenes to have the same size</li>
+<li><i>opacity/visible/enabled</i> all contribute to the behavior we want when switching between scenes (details in comments)</li>
+<li>We have a rectangle as background, spanning the whole scene. This would also be possible with an image</li>
+</ul>
+<a name="the-menu"></a>
+<h2 id="the-menu">The Menu</h2>
+<p>Now its time for the menu scene, which will not only be the place where we define the conditions for our simulation, but also the thing we see before and after a simulation. Add again a new scene in the <i>scenes</i> folder and name it <i>MenuScene.qml</i>.</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+<span class="comment">// The Menu Scene</span>
+<span class="type">SceneBase</span> {
+        <span class="name">id</span>: <span class="name">menuScene</span>
+
+        <span class="comment">// Headline with the name of the app</span>
+        <span class="type">Text</span> {
+                <span class="name">anchors</span>.horizontalCenter: <span class="name">parent</span>.<span class="name">horizontalCenter</span>
+                <span class="name">y</span>: <span class="number">30</span>
+                <span class="name">font</span>.pixelSize: <span class="number">30</span>
+                <span class="name">color</span>: <span class="string">&quot;#e9e9e9&quot;</span>
+                <span class="name">text</span>: <span class="string">&quot;The Game of Life&quot;</span>
+        }
+}</pre>
+<p>Not yet much to see her but this will change soonish. First thing to note is that we do not use &quot;Scene&quot; for our type definition but instead our own defined type e {SceneBase} - which is important because else our base class would't make too much sense ;) Also note that we did not have to add an additional import to be able to use our own type - this is due to it being in the same folder as this file. We will later see how it looks like to import something. Beside these things, we added a nice headline for our app, prominently spelling its name.</p>
+<a name="the-game-scene"></a>
+<h2 id="the-game-scene">The Game Scene</h2>
+<p>The last scene we add is the one where our simulation will take place. Add it as before under <i>scenes</i> with the name <i>GameScene.qml</i>.</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+<span class="comment">// The Game Scene</span>
+<span class="type">SceneBase</span> {
+        <span class="name">id</span>: <span class="name">gameScene</span>
+
+        property <span class="type">bool</span> <span class="name">simulationRunning</span>: <span class="number">false</span>
+
+        <span class="name">sceneAlignmentY</span>: <span class="string">&quot;top&quot;</span>
+        <span class="name">sceneAlignmentX</span>: <span class="string">&quot;left&quot;</span>
+
+        <span class="comment">// The entitiy  manager which will store all cells of our board</span>
+        <span class="type">EntityManager</span> {
+                 <span class="name">id</span>: <span class="name">cellBoardEntityManager</span>
+                 <span class="name">entityContainer</span>: <span class="name">gameScene</span>
+        }
+
+}</pre>
+<p>Some new things here to mention. The bool property will be needed in the future to tell us if the simulation is still running. The EntitiyManager is not yet used but will be needed when we create our cells for the board.</p>
+<a name="bringing-them-together"></a>
+<h2 id="bringing-them-together">Bringing them together</h2>
+<p>All basic scene versions are in place, so its time to put them to use. Also we can now define our <i>Main.qml</i> - which got auto created with new project.</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+import &quot;scenes&quot;
+
+<span class="type">GameWindow</span> {
+        <span class="name">id</span>: <span class="name">gameWindow</span>
+
+        <span class="name">screenWidth</span>: <span class="number">960</span>
+        <span class="name">screenHeight</span>: <span class="number">640</span>
+
+        property <span class="type">int</span> <span class="name">setupLivingCells</span>: <span class="number">2</span>
+        property <span class="type">int</span> <span class="name">setupSimulationSteps</span>: <span class="number">1</span>
+        property <span class="type">int</span> <span class="name">currentSimulationStep</span>: <span class="number">0</span>
+
+        <span class="type">MenuScene</span> {
+                <span class="name">id</span>: <span class="name">menuScene</span>
+        }
+
+        <span class="type">GameScene</span> {
+                <span class="name">id</span>: <span class="name">gameScene</span>
+        }
+}</pre>
+<p>First thing to note is the additional import, so we have access to our defined scenes. In preperation we also added three integer properties:</p>
+<ul>
+<li><i>setupLivingCells</i> represents the number of cells which got setup for the beginning of the simulation</li>
+<li><i>setupSimulationSteps</i> represents the number of simulation steps we want to perform</li>
+<li><i>currentSimulationStep</i> is there to keep track of how many simulation steps we did</li>
+</ul>
+<p>And last but not least, we have the definitions for our newly created scenes.</p>
+<a name="controlling-visibility"></a>
+<h2 id="controlling-visibility">Controlling visibility</h2>
+<p>So our scenes are in place but as for now, there is no activity possible. We want to switch between the scenes and for this we need the functionality itself and something to trigger it. For the functionality, we already added some properties to the <i>SceneBase</i>, which we will put to use now. Add the following to your <i>Main.qml</i>:</p>
+<pre class="qml">...
+
+GameWindow {
+        ...
+
+        // Default state is menu -&gt; Default scene is menuScene
+        state: &quot;menu&quot;
+        activeScene: menuScene
+
+        // State machine, takes care of reversing the PropertyChanges when changing the state
+        states: [
+                State {
+                        name: &quot;menu&quot;
+                        PropertyChanges {target: menuScene; opacity: 1}
+                        PropertyChanges {target: gameWindow; activeScene: menuScene}
+                },
+                State {
+                        name: &quot;game&quot;
+                        PropertyChanges {target: gameScene; opacity: 1}
+                        PropertyChanges {target: gameWindow; activeScene: gameScene}
+                }
+        ]
+}</pre>
+<p>The solution is to use a StateMachine. The GameWindow has the property <i>state</i> which we set to <i>menu</i> because the menu scene is the place where we want to start. The above code defines what should happen on the specific state changes. It will be browsed through and do what is set up. This is on one hand, to change the opacity of the scene where we wanna go (which through the set up properties also implicitly changes <i>visible</i> and <i>enabled</i>). On the other hand we change the <i>activeScene</i> property to the one we want.</p>
+<a name="one-button-to-rule-them-all"></a>
+<h2 id="one-button-to-rule-them-all">One Button to rule them all</h2>
+<p>Now that the functionality to switch scenes is in place, we need UI elements to trigger them. Since we will need several buttons (not only for switching), we should create a reusable one. Add a <i>MenuButton.qml</i> file to the <i>entities</i> folder, with the following content:</p>
+<pre class="qml">import QtQuick 2.0
+
+<span class="type">Rectangle</span> {
+        <span class="name">id</span>: <span class="name">button</span>
+
+        <span class="comment">// The horizontal margin from the Text element to the Rectangle at both the left and the right side</span>
+        property <span class="type">int</span> <span class="name">paddingHorizontal</span>: <span class="number">10</span>
+        <span class="comment">// The vertical margin from the Text element to the Rectangle at both the top and the bottom side</span>
+        property <span class="type">int</span> <span class="name">paddingVertical</span>: <span class="number">5</span>
+        <span class="comment">// access the text of the Text component</span>
+        property <span class="type">alias</span> <span class="name">text</span>: <span class="name">buttonText</span>.<span class="name">text</span>
+
+        <span class="comment">// this handler is called when the button is clicked.</span>
+        signal <span class="type">clicked</span>
+
+        <span class="comment">// This will be the default size, it is same size as the contained text + some padding</span>
+        <span class="name">width</span>: <span class="name">buttonText</span>.<span class="name">width</span> <span class="operator">+</span> <span class="name">paddingHorizontal</span> <span class="operator">*</span> <span class="number">2</span>
+        <span class="name">height</span>: <span class="name">buttonText</span>.<span class="name">height</span> <span class="operator">+</span> <span class="name">paddingVertical</span> <span class="operator">*</span> <span class="number">2</span>
+
+        <span class="name">color</span>: <span class="string">&quot;#e9e9e9&quot;</span>
+
+        <span class="comment">// round edges</span>
+        <span class="name">radius</span>: <span class="number">10</span>
+
+        <span class="type">Text</span> {
+                <span class="name">id</span>: <span class="name">buttonText</span>
+                <span class="name">anchors</span>.centerIn: <span class="name">parent</span>
+                <span class="name">font</span>.pixelSize: <span class="number">18</span>
+                <span class="name">color</span>: <span class="string">&quot;black&quot;</span>
+        }
+
+        <span class="type">MouseArea</span> {
+                <span class="name">id</span>: <span class="name">mouseArea</span>
+                <span class="name">anchors</span>.fill: <span class="name">parent</span>
+                <span class="name">hoverEnabled</span>: <span class="number">true</span>
+                <span class="name">onClicked</span>: <span class="name">button</span>.<span class="name">clicked</span>()
+                <span class="name">onPressed</span>: <span class="name">button</span>.<span class="name">opacity</span> <span class="operator">=</span> <span class="number">0.5</span>
+                <span class="name">onReleased</span>: <span class="name">button</span>.<span class="name">opacity</span> <span class="operator">=</span> <span class="number">1</span>
+        }
+}</pre>
+<p>We need one button in the <i>menuScene</i> to switch to the <i>gameScene</i> and with it, a signal:</p>
+<pre class="qml">...
+
+import &quot;../entities&quot;
+
+SceneBase {
+        id: menuScene
+
+        // Signal indicating that the gameScene should be displayed and the simulation can start
+        signal startSimulationPressed
+
+        ...
+
+        // UI for setting up the simulation details
+        Column {
+                anchors.centerIn: parent
+                spacing: 10
+                MenuButton {
+                        text: &quot;Start Simulation&quot;
+                        onClicked: startSimulationPressed()
+                }
+        }
+}</pre>
+<p>With this, we can extend our <i>menuScene</i> instance at <i>Main.qml</i>:</p>
+<pre class="qml">MenuScene {
+        id: menuScene
+        onStartSimulationPressed: doStartSimulationPressed();
+}
+
+function doStartSimulationPressed() {
+        gameWindow.state = &quot;game&quot;
+}</pre>
+<p>Be accessing the signal receiver, we can either do a single statement or call a function to do multiple things. <i>doStartSimulationPressed</i> will be extended in the future. If you run the game now, switching from menu to simulation is possible but we still need to provide a way to go the other way round. But instead of adding a new signal to <i>gameScene</i>, we will make use of the already per default existing one for back-buttons. Add this code to <i>GameScene.qml</i>:</p>
+<pre class="qml"><span class="comment">// Back button to leave simulation</span>
+ <span class="type">MenuButton</span> {
+         <span class="name">anchors</span>.right: <span class="name">gameScene</span>.<span class="name">gameWindowAnchorItem</span>.<span class="name">right</span>
+         <span class="name">anchors</span>.rightMargin: <span class="number">10</span>
+         <span class="name">anchors</span>.bottom: <span class="name">gameScene</span>.<span class="name">gameWindowAnchorItem</span>.<span class="name">bottom</span>
+         <span class="name">anchors</span>.bottomMargin: <span class="number">10</span>
+         <span class="name">text</span>: <span class="string">&quot;Abort Simulation&quot;</span>
+         <span class="name">onClicked</span>: <span class="name">backButtonPressed</span>()
+}</pre>
+<p>And extend our <i>gameScene</i> instance in <i>Main.qml</i>:</p>
+<pre class="qml">GameScene {
+        id: gameScene
+        onBackButtonPressed: doResetSimulation()
+}
+
+function doResetSimulation() {
+        gameWindow.state = &quot;menu&quot;
+        gameScene.simulationRunning = false
+        setupLivingCells = 2
+        setupSimulationSteps = 1
+        currentSimulationStep = 0
+}</pre>
+<p>If you start the game now, you will see the menu and be able to switch to simulation and back. Great job!</p>
+<div class="table"><table class="generic">
+ <tr valign="top" class="odd"><p class="centerAlign"><img src="images/scene_switch_menu.png" alt="" /></p><p class="centerAlign"><img src="images/scene_switch_game.png" alt="" /></p></tr>
+</table></div>
+<a name="changing-and-showing-settings"></a>
+<h2 id="changing-and-showing-settings">Changing and showing settings</h2>
+<a name="a-label-to-show"></a>
+<h2 id="a-label-to-show">A label to show</h2>
+<p>Its time get our fingers on the settings we want to change and display for the simulation. The button functionality for the changes exists - whats missing is a label to show the settings. Therefore create a <i>MenuLabel.qml</i> in the <i>entities</i> folder with this content:</p>
+<pre class="qml">import QtQuick 2.0
+
+<span class="type">Rectangle</span> {
+        <span class="name">id</span>: <span class="name">label</span>
+
+        <span class="comment">// the horizontal margin from the Text element to the Rectangle at both the left and the right side.</span>
+        property <span class="type">int</span> <span class="name">paddingHorizontal</span>: <span class="number">10</span>
+        <span class="comment">// the vertical margin from the Text element to the Rectangle at both the top and the bottom side.</span>
+        property <span class="type">int</span> <span class="name">paddingVertical</span>: <span class="number">5</span>
+
+        <span class="comment">// access the text of the Text component</span>
+        property <span class="type">alias</span> <span class="name">text</span>: <span class="name">labelText</span>.<span class="name">text</span>
+        property <span class="type">alias</span> <span class="name">textColor</span>: <span class="name">labelText</span>.<span class="name">color</span>
+
+        <span class="comment">// this will be the default size, it is the same size as the contained text + some padding</span>
+        <span class="name">width</span>: <span class="name">labelText</span>.<span class="name">width</span> <span class="operator">+</span> <span class="name">paddingHorizontal</span> <span class="operator">*</span> <span class="number">2</span>
+        <span class="name">height</span>: <span class="name">labelText</span>.<span class="name">height</span> <span class="operator">+</span> <span class="name">paddingVertical</span> <span class="operator">*</span> <span class="number">2</span>
+
+        <span class="name">color</span>: <span class="string">&quot;#47688e&quot;</span>
+
+        <span class="comment">// round edges</span>
+        <span class="name">radius</span>: <span class="number">10</span>
+
+        <span class="type">Text</span> {
+                <span class="name">id</span>: <span class="name">labelText</span>
+                <span class="name">anchors</span>.centerIn: <span class="name">parent</span>
+                <span class="name">font</span>.pixelSize: <span class="number">18</span>
+                <span class="name">color</span>: <span class="string">&quot;black&quot;</span>
+        }
+}</pre>
+<a name="a-nice-menu"></a>
+<h2 id="a-nice-menu">A nice menu</h2>
+<p>With the new type at hand, we can finalize our <i>MenuScene.qml</i> by adding all the signals, correspondings buttons and labels we need:</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+import &quot;../entities&quot;
+
+<span class="comment">// The Menu Scene</span>
+<span class="type">SceneBase</span> {
+        <span class="name">id</span>: <span class="name">menuScene</span>
+
+        <span class="comment">// Signal indicating that the gameScene should be displayed and the simulation can start</span>
+        signal <span class="type">startSimulationPressed</span>
+        <span class="comment">// Signals to trigger an in-/decrease of living cells at the begin of the simulation</span>
+        signal <span class="type">increaseLivingCells</span>
+        signal <span class="type">decreaseLivingCells</span>
+        <span class="comment">// Signals to trigger an in-/decrease of simulation steps to be performed</span>
+        signal <span class="type">increaseSimulationSteps</span>
+        signal <span class="type">decreaseSimulationSteps</span>
+
+        <span class="comment">// Headline with the name of the app</span>
+        <span class="type">Text</span> {
+                <span class="name">anchors</span>.horizontalCenter: <span class="name">parent</span>.<span class="name">horizontalCenter</span>
+                <span class="name">y</span>: <span class="number">30</span>
+                <span class="name">font</span>.pixelSize: <span class="number">30</span>
+                <span class="name">color</span>: <span class="string">&quot;#e9e9e9&quot;</span>
+                <span class="name">text</span>: <span class="string">&quot;The Game of Life&quot;</span>
+        }
+
+        <span class="comment">// UI for setting up the simulation details</span>
+        <span class="type">Column</span> {
+                <span class="name">anchors</span>.centerIn: <span class="name">parent</span>
+                <span class="name">spacing</span>: <span class="number">10</span>
+                <span class="type">MenuButton</span> {
+                        <span class="name">text</span>: <span class="string">&quot;Start Simulation&quot;</span>
+                        <span class="name">onClicked</span>: <span class="name">startSimulationPressed</span>()
+                }
+
+                <span class="type">Row</span> {
+                        <span class="type">MenuButton</span> {
+                                <span class="name">text</span>: <span class="string">&quot;-&quot;</span>
+                                <span class="name">onClicked</span>: <span class="name">decreaseLivingCells</span>()
+                        }
+                        <span class="type">MenuLabel</span> {
+                                <span class="name">text</span>: <span class="name">setupLivingCells</span>
+                        }
+                        <span class="type">MenuButton</span> {
+                                <span class="name">text</span>: <span class="string">&quot;+&quot;</span>
+                                <span class="name">onClicked</span>: <span class="name">increaseLivingCells</span>()
+                        }
+                        <span class="type">MenuLabel</span> {
+                                <span class="name">text</span>: <span class="string">&quot;Define number of living cells&quot;</span>
+                                <span class="name">color</span>: <span class="string">&quot;#47688e&quot;</span>
+                        }
+                }
+                <span class="type">Row</span> {
+                        <span class="type">MenuButton</span> {
+                                <span class="name">text</span>: <span class="string">&quot;-&quot;</span>
+                                <span class="name">onClicked</span>: <span class="name">decreaseSimulationSteps</span>()
+                        }
+                        <span class="type">MenuLabel</span> {
+                                <span class="name">text</span>: <span class="name">setupSimulationSteps</span>
+                        }
+                        <span class="type">MenuButton</span> {
+                                <span class="name">text</span>: <span class="string">&quot;+&quot;</span>
+                                <span class="name">onClicked</span>: <span class="name">increaseSimulationSteps</span>()
+                        }
+                        <span class="type">MenuLabel</span> {
+                                <span class="name">text</span>: <span class="string">&quot;Define number of simulation steps&quot;</span>
+                                <span class="name">color</span>: <span class="string">&quot;#47688e&quot;</span>
+                        }
+                }
+        }
+}</pre>
+<p>Each in-/decrease for cells and steps get a separate signal and button. The labels are used to display the actual number and description of what happens. We also make of <i>Column</i> &amp; <i>Row</i> to neatly organize all this elements on the screen. The next step is to create the handlers in <i>Main.qml</i>:</p>
+<pre class="qml">MenuScene {
+        id: menuScene
+        onStartSimulationPressed: doStartSimulationPressed();
+        onIncreaseLivingCells: doIncreaseLivingCells();
+        onDecreaseLivingCells: doDecreaseLivingCells();
+        onIncreaseSimulationSteps: doIncreaseSimulationSteps();
+        onDecreaseSimulationSteps: doDecreaseSimulationSteps();
+}
+
+function doIncreaseLivingCells() {
+        if (setupLivingCells &lt; gameScene.getNumberOfCells())
+                ++setupLivingCells;
+}
+
+function doDecreaseLivingCells() {
+        if (setupLivingCells &gt; 0)
+                --setupLivingCells;
+}
+
+function doIncreaseSimulationSteps() {
+        ++setupSimulationSteps;
+}
+
+function doDecreaseSimulationSteps() {
+        if (setupSimulationSteps &gt; 1)
+                --setupSimulationSteps;
+}</pre>
+<p>The functions needed some checks for boundaries - like it should not be possible to setup more cells than the board can actually host. Starting the game now will present you with this beautiful menu:</p>
+<p class="centerAlign"><img src="images/finished_menu.png" alt="" /></p><a name="uis-in-the-simulation"></a>
+<h2 id="uis-in-the-simulation">UIs in the simulation</h2>
+<p>Whats left regarding UIs, are the needed elements in the <i>GameScene.qml</i>:</p>
+<pre class="qml"><span class="comment">// UI displaying infos about the current state</span>
+<span class="type">Column</span> {
+        <span class="name">anchors</span>.right: <span class="name">gameScene</span>.<span class="name">gameWindowAnchorItem</span>.<span class="name">right</span>
+        <span class="name">anchors</span>.rightMargin: <span class="number">10</span>
+        <span class="name">anchors</span>.top: <span class="name">gameScene</span>.<span class="name">gameWindowAnchorItem</span>.<span class="name">top</span>
+        <span class="name">anchors</span>.topMargin: <span class="number">10</span>
+
+        <span class="type">Row</span> {
+                <span class="type">MenuLabel</span> {
+                        <span class="name">text</span>: <span class="string">&quot;Current Simulation Round: &quot;</span> <span class="operator">+</span> <span class="name">currentSimulationStep</span>
+                        <span class="name">paddingVertical</span>: <span class="number">10</span>
+                }
+        }
+        <span class="type">Row</span> {
+                 <span class="type">MenuLabel</span> {
+                         <span class="name">text</span>: <span class="string">&quot;Simulation finished!&quot;</span>
+                         <span class="name">visible</span>: !<span class="name">simulationRunning</span>
+                         <span class="name">textColor</span>: <span class="string">&quot;red&quot;</span>
+                 }
+         }
+}</pre>
+<p>Here too the column/row elements are handy. We show the current simulation step (so the user can keep track)and when the simulation stopped, a label indicating the finished state.</p>
+<p class="centerAlign"><img src="images/finished_game_menu.png" alt="" /></p><a name="its-all-about-cells"></a>
+<h2 id="its-all-about-cells">Its all about cells</h2>
+<a name="a-single-cell"></a>
+<h2 id="a-single-cell">A single cell</h2>
+<p>Congratulations! We sat up everything we need to be able to concentrate now on the core of our game - the cell simulation. Lets recap what we want from one of our cells:</p>
+<ul>
+<li>It should be able to be marked as dead or alive</li>
+<li>It needs to know its position on the board (by row/column number)</li>
+<li>Depending on the dead/alive state, it should be displayed accordingly</li>
+</ul>
+<p>With that knowledge we can add the new file <i>Cell.qml</i> to the <i>entities</i> folder:</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+<span class="type">EntityBase</span> {
+        <span class="name">id</span>: <span class="name">cell</span>
+        <span class="name">entityType</span>: <span class="string">&quot;Cell&quot;</span>
+
+        property <span class="type">bool</span> <span class="name">isAlive</span>: <span class="number">false</span>
+        property <span class="type">int</span> <span class="name">row</span>
+        property <span class="type">int</span> <span class="name">column</span>
+
+        <span class="type">Image</span> {
+                <span class="name">id</span>: <span class="name">cellImage</span>
+                <span class="name">anchors</span>.fill: <span class="name">parent</span>
+                <span class="name">source</span>: <span class="string">&quot;../../assets/DeadCell.png&quot;</span>
+        }
+
+        <span class="keyword">function</span> <span class="name">setIsAlive</span>(<span class="name">isAliveFlag</span>)
+        {
+                <span class="keyword">if</span> (<span class="name">isAlive</span> <span class="operator">===</span> <span class="name">isAliveFlag</span>)
+                        <span class="keyword">return</span>
+
+                <span class="name">isAlive</span> <span class="operator">=</span> <span class="name">isAliveFlag</span>;
+
+                <span class="keyword">if</span> (<span class="name">isAlive</span> <span class="operator">==</span> <span class="number">true</span>)
+                        <span class="name">cellImage</span>.<span class="name">source</span> <span class="operator">=</span> <span class="string">&quot;../../assets/LivingCell.png&quot;</span>
+                <span class="keyword">else</span>
+                        <span class="name">cellImage</span>.<span class="name">source</span> <span class="operator">=</span> <span class="string">&quot;../../assets/DeadCell.png&quot;</span>
+        }
+}</pre>
+<div class="table"><table class="generic">
+ <thead><tr class="qt-style"><th >Living Cell</th><th >Dead Cell</th></tr></thead>
+<tr valign="top" class="odd"><td ><img src="images/livingCell.png" alt="" /></td><td ><img src="images/deadCell.png" alt="" /></td></tr>
+</table></div>
+<p>That was easy ;) The dead/alive state is realized with a bool property since it can have only two different states. <i>row, column</i> can be simple integer properties. An image will display the cell (stretching over the full size of it). And to be able to add some additional logic, changing the <i>isAlive</i> property works through a function. Here we not only check if a change is needed (and by this skipping the rest if not), but also update the image source depending on the new value of <i>isAlive</i>.</p>
+<a name="the-cellboard"></a>
+<h2 id="the-cellboard">The Cellboard</h2>
+<p>The cellboard is the place where the simulation starts (using the set up values from the menu), does its steps and will show the end result. Again, we should recap what our cellboard should be capable of:</p>
+<ul>
+<li>It defines how many cells it can hold</li>
+<li>It must signal when the simulation if finished and clear up the created cells</li>
+<li>It must create all cells which are needed and define which of them will be marked <i>alive</i> at the beginning</li>
+<li>It must do the simulation steps and through them, execute the rules which decide how the next version of the board looks</li>
+</ul>
+<p>That means quite some work, but lets start with the first two points.</p>
+<a name="the-basic-layout"></a>
+<h3 >The Basic Layout</h3>
+<p>Add a new file <i>CellBoard.qml</i> in the <i>entities</i> folder, with the following content:</p>
+<pre class="qml">import VPlay 2.0
+import QtQuick 2.0
+
+<span class="type">Item</span> {
+        <span class="name">id</span>: <span class="name">cellBoard</span>
+
+        <span class="comment">// The board will always be square, so just one value needed (defines one dimension)</span>
+        property <span class="type">int</span> <span class="name">boardSize</span>: <span class="number">15</span>
+        property <span class="type">double</span> <span class="name">cellSize</span>
+        property <span class="type">int</span> <span class="name">columns</span>: <span class="name">Math</span>.<span class="name">floor</span>(<span class="name">width</span> <span class="operator">/</span> <span class="name">cellSize</span>)
+        property <span class="type">int</span> <span class="name">rows</span>: <span class="name">Math</span>.<span class="name">floor</span>(<span class="name">height</span> <span class="operator">/</span> <span class="name">cellSize</span>)
+
+        <span class="comment">// Arrays for handling the cells on the board</span>
+        property <span class="type">var</span> <span class="name">board</span>: []      <span class="comment">// The board which is displayed</span>
+        property <span class="type">var</span> <span class="name">nextBoard</span>: []  <span class="comment">// The where changes happen before they are applied to the display</span>
+
+
+        signal <span class="type">simulationOver</span>
+
+        <span class="comment">// Shall be a multiple of the cellSize</span>
+        <span class="name">width</span>: <span class="name">cellSize</span> <span class="operator">*</span> <span class="name">boardSize</span>
+        <span class="name">height</span>: <span class="name">cellSize</span> <span class="operator">*</span> <span class="name">boardSize</span>
+
+        <span class="comment">// Calculate cell index</span>
+        <span class="keyword">function</span> <span class="name">index</span>(<span class="name">row</span>, column) {
+                <span class="keyword">return</span> <span class="name">row</span> <span class="operator">*</span> <span class="name">columns</span> <span class="operator">+</span> <span class="name">column</span>
+        }
+}</pre>
+<p>We want a square board, so we need just one value which defines how many cells a row/column will have. <i>cellSize</i> needs to be defined by the one who creates an instance of this item. You may wonder why we have two arrays withe &quot;board&quot; in their names. The simulation works (as already mentioned) in steps. A single step means a complete recalculation of the whole board by using the given ruleset. This requires a current version (<i>board</i>) and a second one (e {nextBoard}), where changes are applied. After all calculations are finished, the current version is unchanged while the other is the updated one. Since <i>board</i> is the one we use to display the cells, <i>nextBoard</i> is copied over it and therefore the display updated. We will see the code for this just in minute ;)</p>
+<p>You may again wonder, why our arrays are just one-dimensional - isn't the board to be supposed two-dimensional? A good point but don't worry , there is very neat solution in usage - when can store the cells in an one-dimensional array (which is easier) and still use it two-dimensional. Adressing cells in the array works just as you would expect by their position composed of row/column. Its just that you have to use the <i>index()</i> function to get the correct index for your coordinates - the calculation in there provides you with whats needed.</p>
+<a name="cell-creation"></a>
+<h3 >Cell creation</h3>
+<p>Its about time to create some cells for our board. Extend <i>CellBoard.qml</i> with the following code:</p>
+<pre class="qml">// Fill board with cells
+function initializeBoard(numberOfLivingCells) {
+        clearBoard();
+
+        // Fill board
+        for(var y = 0; y &lt; rows; y++)
+        {
+                for(var x = 0; x &lt; columns ; x++)
+                {
+                        board[index(y, x)] = createCell(y, x);
+                }
+        }
+
+        // Randomly define which fields should be alive
+        for (var i = 0; i &lt; numberOfLivingCells; ++i)
+        {
+                board[getRandomDeadCellIndex()].setIsAlive(true);
+        }
+        // Handover the newly created board so both ones are identical for the start
+        nextBoard = board
+}
+
+// Returns a random dead cell index
+function getRandomDeadCellIndex()
+{
+        var randomDeadCellIndex;
+        // Iterate until a random dead cell got found
+        do
+        {
+                randomDeadCellIndex = getRandomInt(0, board.length);
+        } while(board[randomDeadCellIndex].isAlilve === true)
+
+        return randomDeadCellIndex;
+}
+
+// Returns random number between &quot;min&quot; (inclusive) and max (exclusive)
+function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+}
+
+// Clear the board
+function clearBoard() {
+        for(var i = 0; i &lt; board.length; i++)   // Remove entities
+        {
+                var cell = board[i]
+                if(cell !== null)
+                        cellBoardEntityManager.removeEntityById(nextBoardCell.entityId)
+
+                var nextBoardCell = nextBoard[i]
+                if (nextBoardCell !== null)
+                        cellBoardEntityManager.removeEntityById(nextBoardCell.entityId)
+        }
+
+        board = []
+        nextBoard = []
+}
+
+// Create a new cell at specific position
+function createCell(row, column) {
+        // Configure cell
+        var entityProperties = {
+                width: cellSize,
+                height: cellSize,
+                x: column * cellSize,
+                y: row * cellSize,
+                isAlive: false,
+                row: row,
+                column: column
+        }
+
+        // Create a new entitiy with our properties and return it
+        var id = cellBoardEntityManager.createEntityFromUrlWithProperties(Qt.resolvedUrl(&quot;Cell.qml&quot;), entityProperties)
+        return cellBoardEntityManager.getEntityById(id)
+}</pre>
+<p>Lets go over it function by function:</p>
+<ul>
+<li><i>initializeBoard()</i> takes the number of cells that should be alive at start. After a cleaning, the whole board is iterated over and for each entry a cell is created. Afterwards the cells to be alive are decided per random position and both boards are aligned.</li>
+<li><i>getRandomCellIndex()</i> &amp; <i>getRandomInt()</i> are responsible for finding valild cells to be made alive.</li>
+<li><i>clearBoard</i> removes the cell entities via the EntitiyManager and sets both boards to empty.</li>
+<li><i>createCell</i> is responsible to create a single cell via the EntitiyManager and returns the EntitiyId for further use.</li>
+</ul>
+<a name="the-simulation"></a>
+<h3 >The simulation</h3>
+<p>Cells are created and in their place, so its time to simulate them away! Add the following code to <i>CellBoard.qml</i> and we will go through it:</p>
+<pre class="qml">// Works through a single full simulation step with all cell changes
+function doSimulationStep() {
+        // Iterate over all cells to recalculate them
+        for(var y = 0; y &lt; rows; y++)
+        {
+                for(var x = 0; x &lt; columns; x++)
+                {
+                        calculateCell(y, x, getCellNeighbours(y, x))
+                }
+        }
+
+        // Update the the displayed version
+        board = nextBoard
+
+        // The current simulation round is over so we increase to the next
+        ++currentSimulationStep
+
+        // If we went through the desired number of simulationsteps, we stop
+        if (currentSimulationStep == setupSimulationSteps)
+                simulationRunning = false
+}
+
+// Returns an array with all neighbours for the cell on the given coordinates
+function getCellNeighbours(row, column)
+{
+        var neighbourCells = []
+        // Precalculate the different possiblites of where the given cell is located
+        var isLeftUpperCorner = (column === leftBorder &amp;&amp; row === upperBorder)
+        var isRightUpperCorner = (column === rightBorder &amp;&amp; row === upperBorder)
+        var isLeftLowerCorner = (column === leftBorder &amp;&amp; row === lowerBorder)
+        var isRightLowerCorner = (column === rightBorder &amp;&amp; row === lowerBorder)
+        var isLeftBorder = column === leftBorder
+        var isRightBorder = column === rightBorder
+        var isUpperBorder = row === upperBorder
+        var isLowerBorder = row === lowerBorder
+
+        // Handle each case and depending on it, store the neighbouring cells
+        if (isLeftUpperCorner) {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[2] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+        }
+        else if (isRightUpperCorner) {
+                neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[2] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+        }
+        else if (isLeftLowerCorner) {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[2] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+        }
+        else if (isRightLowerCorner) {
+                neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[1] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[2] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+        }
+        else if (isLeftBorder) {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+                neighbourCells[4] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+        }
+        else if (isRightBorder) {
+                neighbourCells[0] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[1] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[3] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+                neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+        }
+        else if (isUpperBorder) {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[3] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+                neighbourCells[4] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+
+        }
+        else if (isLowerBorder) {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[2] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[3] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+                neighbourCells[4] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+        }
+        else {
+                neighbourCells[0] = board[index(row, column + 1)]          // Right Neighbour
+                neighbourCells[1] = board[index(row, column - 1)]          // Left Neighbour
+                neighbourCells[2] = board[index(row + 1, column)]          // Lower Neighbour
+                neighbourCells[3] = board[index(row - 1, column)]          // Upper Neighbour
+                neighbourCells[4] = board[index(row + 1, column + 1)]      // Lower Right Neighbour
+                neighbourCells[5] = board[index(row - 1, column + 1)]      // Upper Right Neighbour
+                neighbourCells[6] = board[index(row + 1, column - 1)]      // Lower Left Neighbour
+                neighbourCells[7] = board[index(row - 1, column - 1)]      // Upper Left Neighbour
+        }
+
+        return neighbourCells
+}
+
+// Performs the actual change of cell, depending on its neighbours
+function calculateCell(row, column, cellNeighbours)
+{
+        var livingNeighbours = 0
+        for (var i = 0; i &lt; cellNeighbours.length; ++i)
+        {
+                if (cellNeighbours[i].isAlive === true)
+                        ++livingNeighbours
+        }
+
+        if (nextBoard[index(row, column)].isAlive === true)
+                calculateLivingCell(livingNeighbours, row, column)
+        else
+                calculateDeadCell(livingNeighbours, row, column)
+}
+
+// Performs the changes for a living cell
+function calculateLivingCell(livingNeighbours, row, column)
+{
+        if (livingNeighbours &lt;= 1)
+        {
+                // Cell dies due to solitude
+                nextBoard[index(row, column)].setIsAlive(false)
+        }
+        else if (livingNeighbours &gt;= 4)
+        {
+                // Cell dies due to overpopulation
+                nextBoard[index(row, column)].setIsAlive(false)
+        }
+}
+
+// Performs the changes for a dead cell
+function calculateDeadCell(livingNeighbours, row, column)
+{
+        if (livingNeighbours === 3)
+        {
+                // Cell comes to live due to the correct environment
+                nextBoard[index(row, column)].setIsAlive(true)
+        }
+}</pre>
+<p>Uff thats quite some piece of code. But don't be frightened - its not too complicated. ;)</p>
+<p>The basic idea is to iterate over all cells on the board. For each cell, we gather its neighbours. The important point about the this gathering is, that handle the board strict and not continous. A strict board means (like in our case) that the board ends at the border. E.g&#x2e; the cell at (0,0) has only three neighbours because its in the left upper corner. Sounds logical enough right? However there would have been the alternative to allow always the full number of neighbours (eight) - by acting as the same board would repeat itself at the border. But enough about since we choose strict version.</p>
+<p>With the gathered cell neighbours (important - from <i>board</i>!), we now have to check how many of them are alive and if our current cell is alive or not. With this knowledge we can apply the ruleset for a cell:</p>
+<ul>
+<li>A dead cell becomes alive if it has exactly three neighbours which are also alive</li>
+<li>A living cell dies of solitude if it only one or less living neighbours</li>
+<li>A living cell dies of overpopulation if it has four or more living neighbours</li>
+</ul>
+<p>With this ruleset we change the state of cell if necessary. And important - we do that in <i>nextboard</i>. Afterwards we align both boards toi update the display, increase the simulation step and check if we reached the end.</p>
+<a name="using-the-cellboard"></a>
+<h2 id="using-the-cellboard">Using the CellBoard</h2>
+<p>We are nearly done, only two things left. Hurray =) First we go to <i>GameScene.qml</i> and add this:</p>
+<pre class="qml">// The cellboard which will perform filling, clearing and calculation of the cells
+CellBoard {
+        id: cellBoard
+        anchors.horizontalCenter: gameScene.horizontalCenter
+        cellSize: 30
+        y: 20
+}
+
+// Start game
+function startGame(numberOfLivingCells) {
+        cellBoard.initializeBoard(numberOfLivingCells);
+        simulationRunning = true
+}
+
+// The timer which triggers and and controls the speed of the simulation
+Timer {
+        id: simulationTimer
+        running: simulationRunning
+        interval: 1000 // milliseconds
+        repeat: true
+        onTriggered: cellBoard.doSimulationStep()
+}</pre>
+<p>We of course had to add an instance of our cellboard and define the details. <i>startGame()</i> got externded to trigger the initialization of the board and its cells. And last but not least there is a timer. It is needed so control and allow discrete steps for our simulation. It will trigger <i>doSimulationStep()</i> repeatedly as long as <i>simulationRunning</i> is true - meaning until a simulation did all its steps are gets aborted.</p>
+<p>The very last thing to change is the triggering of the whole functionality in <i>Main.qml</i>:</p>
+<pre class="qml">function doStartSimulationPressed() {
+        gameWindow.state = &quot;game&quot;
+        gameScene.startGame(setupLivingCells);
+}</pre>
+<p>So thats about it. You are now able to start the game and watch the little cells in their game of life ;)</p>
+<p class="centerAlign"><img src="images/finished.png" alt="" /></p></div>
+<!-- @@@gol-tutorial.html -->
+</body>
+</html>

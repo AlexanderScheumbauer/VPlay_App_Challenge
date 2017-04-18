@@ -17,8 +17,8 @@
 			So lets talk briefly about the basic idea and facts of \e {Game of Life} (for more detailed info, visit the link above).
 			
 			\list 1
-				\li We want to show a two-dimensional board, consisting of cells (one per position row\column)
-				\li A cell has a position on the board (row\column coordinate), has two possible states (dead or alive) and each state is displayed differently
+				\li We want to show a two-dimensional board, consisting of cells (one per position row & column pair)
+				\li A cell has a position on the board (row \ column coordinate), has two possible states (dead or alive) and each state is displayed differently
 				\li A cell changes its state depending on its current one and the ones of its surrounding neighbours (more on that later)
 				\li The simulation happens in steps. Changes of cells happen only in between steps
 				\li We want to define how many steps we want to simulate

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QDOCINDEX>
+<INDEX url="" title="" version="" project="">
+    <namespace threadsafety="unspecified" name="" status="active" access="public">
+        <page name="gol-tutorial.html" href="gol-tutorial.html" status="active" location="gameOfLife_tutorial.qdoc" filepath="C:/Users/Alex/Documents/GitHub/VPlay_App_Challenge/Game_Of_Life/tutorial/sources/gameOfLife_tutorial.qdoc" lineno="1" subtype="page" title="Game of Life Tutorial" fulltitle="Game of Life Tutorial" subtitle="">
+            <contents name="introduction" title="Introduction" level="1"/>
+            <contents name="new-project-the-basics" title="New Project &amp; the Basics" level="1"/>
+            <contents name="multiple-scenes-setup" title="Multiple Scenes Setup" level="1"/>
+            <contents name="the-base" title="The Base" level="1"/>
+            <contents name="the-menu" title="The Menu" level="1"/>
+            <contents name="the-game-scene" title="The Game Scene" level="1"/>
+            <contents name="bringing-them-together" title="Bringing them together" level="1"/>
+            <contents name="controlling-visibility" title="Controlling visibility" level="1"/>
+            <contents name="one-button-to-rule-them-all" title="One Button to rule them all" level="1"/>
+            <contents name="changing-and-showing-settings" title="Changing and showing settings" level="1"/>
+            <contents name="a-label-to-show" title="A label to show" level="1"/>
+            <contents name="a-nice-menu" title="A nice menu" level="1"/>
+            <contents name="uis-in-the-simulation" title="UIs in the simulation" level="1"/>
+            <contents name="its-all-about-cells" title="Its all about cells" level="1"/>
+            <contents name="a-single-cell" title="A single cell" level="1"/>
+            <contents name="the-cellboard" title="The Cellboard" level="1"/>
+            <contents name="the-basic-layout" title="The Basic Layout" level="2"/>
+            <contents name="cell-creation" title="Cell creation" level="2"/>
+            <contents name="the-simulation" title="The simulation" level="2"/>
+            <contents name="using-the-cellboard" title="Using the CellBoard" level="1"/>
+        </page>
+    </namespace>
+</INDEX>

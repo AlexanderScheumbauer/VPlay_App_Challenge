@@ -12,5 +12,7 @@ sourcedirs = ./sources
 
 imagedirs = ./images
 
+sources.fileextensions  = *.qdoc
+
 outputformats = HTML
 
